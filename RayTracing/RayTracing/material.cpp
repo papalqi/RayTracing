@@ -10,16 +10,34 @@ float schlick(float cosine, float ref_idx)
 }
 
 
-oocd::Vector refract(const Vector &I, const Vector &N, const float &ior)
+oocd::Vector refract(const Vector &v, const Vector &N, const float &ni_over_nt)
 {
-	float cosi = clamp(-1, 1, (I | N));
-	float etai = 1, etat = ior;
+	float cosi = clamp(-1, 1, (v | N));
+	float etai = 1, etat = ni_over_nt;
 	Vector n = N;
 	if (cosi < 0) { cosi = -cosi; }
-	else { std::swap(etai, etat); n = -N; }
+	else
+	{
+		std::swap(etai, etat); n = -N;
+	}
 	float eta = etai / etat;
 	float k = 1 - eta * eta * (1 - cosi * cosi);
-	return k < 0 ? 0 : eta * I + (eta * cosi - sqrtf(k)) * n;
+	if (k < 0)
+	{
+		return 0;
+	}
+	return  eta * v + (eta * cosi - sqrtf(k)) * n;
+
+	//Vector uv = v.GetSafeNormal();
+	//float dt = (uv | n);
+	//float discriminant = 1.0 - ni_over_nt * ni_over_nt*(1 - dt * dt);
+	//Vector refracted;
+	//if (discriminant > 0) {
+	//	refracted = ni_over_nt * (uv - n * dt) - n * sqrt(discriminant);
+	//	return refracted;
+	//}
+	//else
+	//	return 0;
 }
 bool refract(const Vector& v, const Vector& n, float ni_over_nt, Vector& refracted)
 {

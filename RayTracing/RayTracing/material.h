@@ -14,7 +14,7 @@ inline float deg2rad(const float &deg)
 }
 inline Vector mix(const Vector &a, const Vector& b, const float &mixValue)
 {
-	return a * (1 - mixValue) + b * mixValue;
+	return  (1 - mixValue)*a  +  mixValue*b ;
 }
 
 float schlick(float cosine, float ref_idx);

@@ -38,6 +38,34 @@ public:
 		tnear = t0;
 
 		return true;
+
+
+		/*	Vector oc = orig - center;
+			float a = (dir | dir);
+			float b = (oc| dir);
+			float c = (oc| oc) - radius * radius;
+			float discriminant = b * b - a * c;
+			if (discriminant > 0)
+			{
+				float temp = (-b - sqrt(discriminant)) / a;
+				if (temp < t_max && temp > t_min) {
+					rec.t = temp;
+					rec.p = r.point_at_parameter(rec.t);
+					rec.normal = (rec.p - center) / radius;
+					rec.mat_ptr = mat_ptr;
+					return true;
+				}
+				temp = (-b + sqrt(discriminant)) / a;
+				if (temp < t_max && temp > t_min)
+				{
+					rec.t = temp;
+					rec.p = r.point_at_parameter(rec.t);
+					rec.normal = (rec.p - center) / radius;
+					rec.mat_ptr = mat_ptr;
+					return true;
+				}
+			}*/
+		return false;
 	}
 
 	void getSurfaceProperties(const Vector &P, const Vector &I, const uint32_t &index, const Vector2D &uv, Vector &N, Vector2D &st) const
