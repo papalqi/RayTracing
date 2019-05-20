@@ -1,6 +1,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "Object.h"
+#include "Color.h"
 
 bool rayTriangleIntersect(
 	const Vector &v0, const Vector &v1, const Vector &v2,
@@ -57,12 +58,14 @@ public:
 	bool intersect(const Vector &orig, const Vector &dir, float &tnear, uint32_t &index, Vector2D &uv) const
 	{
 		bool intersect = false;
-		for (uint32_t k = 0; k < numTriangles; ++k) {
+		for (uint32_t k = 0; k < numTriangles; ++k) 
+		{
 			const Vector & v0 = vertices[vertexIndex[k * 3]];
 			const Vector & v1 = vertices[vertexIndex[k * 3 + 1]];
 			const Vector & v2 = vertices[vertexIndex[k * 3 + 2]];
 			float t, u, v;
-			if (rayTriangleIntersect(v0, v1, v2, orig, dir, t, u, v) && t < tnear) {
+			if (rayTriangleIntersect(v0, v1, v2, orig, dir, t, u, v) && t < tnear) 
+			{
 				tnear = t;
 				uv.X = u;
 				uv.Y = v;
@@ -92,11 +95,14 @@ public:
 	{
 		float scale = 5;
 		float pattern = (fmodf(st.X * scale, 1) > 0.5) ^ (fmodf(st.Y * scale, 1) > 0.5);
-		return mix(Vector(0.815, 0.235, 0.031), Vector(0.937, 0.937, 0.231), pattern);
-	}
 
+		return mix(Red, Yellow, pattern);
+	}
+	//顶点数据
 	std::unique_ptr<Vector[]> vertices;
+	//三角形个数
 	uint32_t numTriangles;
+	//顶点索引
 	std::unique_ptr<uint32_t[]> vertexIndex;
 	std::unique_ptr<Vector2D[]> stCoordinates;
 };

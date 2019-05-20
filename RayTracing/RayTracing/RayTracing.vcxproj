@@ -127,9 +127,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Color.h" />
     <ClInclude Include="CoreMinimal.h" />
-    <ClInclude Include="dirname.h" />
-    <ClInclude Include="FirstHit.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="material.h" />
     <ClInclude Include="MeshTriangle.h" />

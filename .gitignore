@@ -79,3 +79,5 @@ RayTracing/GCMath/x64/Debug/vcpkg.applocal.log
 RayTracing/GCMath/x64/Debug/Vector2.obj
 RayTracing/GCMath/x64/Debug/Vector3.obj
 RayTracing/GCMath/x64/Debug/Vector4.obj
+RayTracing/.vs/RayTracing/v15/ipch/AutoPCH/4f5b056f84bfa709/FIRSTHIT.ipch
+RayTracing/.vs/RayTracing/v15/ipch/AutoPCH/9a8cf3a8fbbc4a33/COLOR.ipch

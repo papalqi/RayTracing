@@ -17,6 +17,7 @@
 #include <fstream> 
 #include <cmath> 
 #include "MeshTriangle.h"
+#include "Color.h"
 
 const float kInfinity = std::numeric_limits<float>::max();
 
@@ -44,7 +45,8 @@ bool trace(
 		float tNearK = kInfinity;
 		uint32_t indexK;
 		Vector2D uvK;
-		if (objects[k]->intersect(orig, dir, tNearK, indexK, uvK) && tNearK < tNear) {
+		if (objects[k]->intersect(orig, dir, tNearK, indexK, uvK) && tNearK < tNear) 
+		{
 			*hitObject = objects[k].get();
 			tNear = tNearK;
 			index = indexK;
@@ -62,7 +64,8 @@ Vector castRay(
 	uint32_t depth,
 	bool test = false)
 {
-	if (depth > options.maxDepth) {
+	if (depth > options.maxDepth)
+	{
 		return options.backgroundColor;
 	}
 
@@ -71,63 +74,76 @@ Vector castRay(
 	Vector2D uv;
 	uint32_t index = 0;
 	Object *hitObject = nullptr;
-	if (trace(orig, dir, objects, tnear, index, uv, &hitObject)) {
+	if (trace(orig, dir, objects, tnear, index, uv, &hitObject))
+	{
 		Vector hitPoint = orig + dir * tnear;
-		Vector N; // normal 
+		Vector normal; // normal 
 		Vector2D st; // st coordinates 
-		hitObject->getSurfaceProperties(hitPoint, dir, index, uv, N, st);
+		hitObject->getSurfaceProperties(hitPoint, dir, index, uv, normal, st);
 		Vector tmp = hitPoint;
-		switch (hitObject->materialType) {
-		case REFLECTION_AND_REFRACTION:
+		switch (hitObject->materialType)
 		{
-			Vector reflectionDirection = (reflect(dir, N)).GetSafeNormal();
-			Vector refractionDirection = (refract(dir, N, hitObject->ior)).GetSafeNormal();
-			Vector reflectionRayOrig = ((reflectionDirection| N) < 0) ?
-				hitPoint - N * options.bias :
-				hitPoint + N * options.bias;
-			Vector refractionRayOrig = ((refractionDirection| N) < 0) ?
-				hitPoint - N * options.bias :
-				hitPoint + N * options.bias;
-			Vector reflectionColor = castRay(reflectionRayOrig, reflectionDirection, objects, lights, options, depth + 1, 1);
-			Vector refractionColor = castRay(refractionRayOrig, refractionDirection, objects, lights, options, depth + 1, 1);
-			float kr;
-			fresnel(dir, N, hitObject->ior, kr);
-			hitColor = reflectionColor * kr + refractionColor * (1 - kr);
-			break;
-		}
-		case REFLECTION:
-		{
-			float kr;
-			fresnel(dir, N, hitObject->ior, kr);
-			Vector reflectionDirection = reflect(dir, N);
-			Vector reflectionRayOrig = ((reflectionDirection|N) < 0) ?
-				hitPoint + N * options.bias :
-				hitPoint - N * options.bias;
-			hitColor = castRay(reflectionRayOrig, reflectionDirection, objects, lights, options, depth + 1) * kr;
-			break;
-		}
-		default:
-		{  Vector lightAmt = 0, specularColor = 0;
-		Vector shadowPointOrig = ((dir| N) < 0) ?
-			hitPoint + N * options.bias :
-			hitPoint - N * options.bias;        for (uint32_t i = 0; i < lights.size(); ++i) {
-			Vector lightDir = lights[i]->position - hitPoint;
-			// square of the distance between hitPoint and the light
-			float lightDistance2 = (lightDir| lightDir);
-			lightDir = (lightDir).GetSafeNormal();
-			float LdotN = std::max(0.f, (lightDir| N));
-			Object *shadowHitObject = nullptr;
-			float tNearShadow = kInfinity;
-			// is the point in shadow, and is the nearest occluding object closer to the object than the light itself?
-			bool inShadow = trace(shadowPointOrig, lightDir, objects, tNearShadow, index, uv, &shadowHitObject) &&
-				tNearShadow * tNearShadow < lightDistance2;
-			lightAmt += (1 - inShadow) * lights[i]->intensity * LdotN;
-			Vector reflectionDirection = reflect(-lightDir, N);
-			specularColor += powf(std::max(0.f, -(reflectionDirection|dir)), hitObject->specularExponent) * lights[i]->intensity;
-		}
-		hitColor = lightAmt * hitObject->evalDiffuseColor(st) * hitObject->Kd + specularColor * hitObject->Ks;
-		break;
-		}
+			case REFLECTION_AND_REFRACTION:
+			{
+				Vector reflectionDirection = (reflect(dir, normal)).GetSafeNormal();
+				Vector refractionDirection = (refract(dir, normal, hitObject->ior)).GetSafeNormal();
+				Vector reflectionRayOrig = ((reflectionDirection | normal) < 0) ?
+					hitPoint - normal * options.bias :
+					hitPoint + normal * options.bias;
+				Vector refractionRayOrig = ((refractionDirection | normal) < 0) ?
+					hitPoint - normal * options.bias :
+					hitPoint + normal * options.bias;
+				Vector reflectionColor = castRay(reflectionRayOrig, reflectionDirection, objects, lights, options, depth + 1, 1);
+				Vector refractionColor = castRay(refractionRayOrig, refractionDirection, objects, lights, options, depth + 1, 1);
+				float kr;
+				fresnel(dir, normal, hitObject->ior, kr);
+				hitColor = reflectionColor * kr + refractionColor * (1 - kr);
+				break;
+			}
+			case REFLECTION:
+			{
+				float kr;
+				fresnel(dir, normal, hitObject->ior, kr);
+				Vector reflectionDirection = reflect(dir, normal);
+				Vector reflectionRayOrig = ((reflectionDirection | normal) < 0) ?
+					hitPoint + normal * options.bias :
+					hitPoint - normal * options.bias;
+				hitColor = castRay(reflectionRayOrig, reflectionDirection, objects, lights, options, depth + 1) * kr;
+				break;
+			}
+			default:
+			{
+				//环境光、高光
+				Vector lightAmt = 0, specularColor = 0;
+				Vector shadowPointOrig = ((dir | normal) < 0) ?
+					hitPoint + normal * options.bias :
+					hitPoint - normal * options.bias;        
+				for (uint32_t i = 0; i < lights.size(); ++i) 
+				{
+					//到灯光的方向
+					Vector lightDir = lights[i]->position - hitPoint;
+					// 距离的平方
+					float lightDistance2 = (lightDir | lightDir);
+					lightDir = (lightDir).GetSafeNormal();
+					float LdotN = std::max(0.f, (lightDir | normal));
+					Object *shadowHitObject = nullptr;
+					float tNearShadow = kInfinity;
+					// 判断是否是在阴影中并且还要是距离，其还不能是最近的
+					bool inShadow = trace(shadowPointOrig, lightDir, objects, tNearShadow, index, uv, &shadowHitObject) &&
+						tNearShadow * tNearShadow < lightDistance2;
+					lightAmt += (1 - inShadow) * lights[i]->intensity * LdotN;
+					Vector reflectionDirection = reflect(-lightDir, normal);
+					//for debug
+					auto Tema = std::max(0.f, ((-reflectionDirection )| dir));
+					specularColor += powf(Tema, hitObject->specularExponent) * lights[i]->intensity;
+				}
+				//phone模型为：环境光+漫反射光+高光
+				Color AmbineLight = 0*lightAmt;
+				Color DiffuseLight = hitObject->evalDiffuseColor(st) * hitObject->Kd;
+				Color SpecularLight = specularColor * hitObject->Ks;
+				hitColor = AmbineLight + DiffuseLight + specularColor;
+				break;
+			}
 		}
 	}
 
@@ -145,8 +161,10 @@ void render(
 	float scale = tan(deg2rad(options.fov * 0.5));
 	float imageAspectRatio = options.width / (float)options.height;
 	Vector orig(0);
-	for (uint32_t j = 0; j < options.height; ++j) {
-		for (uint32_t i = 0; i < options.width; ++i) {
+	for (uint32_t j = 0; j < options.height; ++j) 
+	{
+		for (uint32_t i = 0; i < options.width; ++i) 
+		{
 			// generate primary ray direction
 			float x = (2 * (i + 0.5) / (float)options.width - 1) * imageAspectRatio * scale;
 			float y = (1 - 2 * (j + 0.5) / (float)options.height) * scale;
@@ -159,11 +177,12 @@ void render(
 	std::ofstream ofs;
 	ofs.open("./out.ppm");
 	ofs << "P6\n" << options.width << " " << options.height << "\n255\n";
-	for (uint32_t i = 0; i < options.height * options.width; ++i) {
+	for (uint32_t i = 0; i < options.height * options.width; ++i) 
+	{
 		char r = (char)(255 * clamp(0, 1, framebuffer[i].X));
 		char g = (char)(255 * clamp(0, 1, framebuffer[i].Y));
 		char b = (char)(255 * clamp(0, 1, framebuffer[i].Z));
-		ofs << r << g << b;
+		ofs << g << b << r;
 	}
 
 	ofs.close();
@@ -185,8 +204,8 @@ int main()
 	sph2->ior = 1.5;
 	sph2->materialType = REFLECTION_AND_REFRACTION;
 
-	objects.push_back(std::unique_ptr<Sphere>(sph1));
-	objects.push_back(std::unique_ptr<Sphere>(sph2));
+	//objects.push_back(std::unique_ptr<Sphere>(sph1));
+	//objects.push_back(std::unique_ptr<Sphere>(sph2));
 
 	Vector verts[4] = { {-5,-3,-6}, {5,-3,-6}, {5,-3,-16}, {-5,-3,-16} };
 	uint32_t vertIndex[6] = { 0, 1, 3, 1, 2, 3 };
@@ -204,7 +223,8 @@ int main()
 	options.width = 640;
 	options.height = 480;
 	options.fov = 90;
-	options.backgroundColor = Vector(0.235294, 0.67451, 0.843137);
+	options.backgroundColor = LightSkyBlue;
+	//options.backgroundColor = IndianRed;
 	options.maxDepth = 5;
 	options.bias = 0.00001;
 

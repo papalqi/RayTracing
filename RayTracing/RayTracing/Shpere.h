@@ -38,7 +38,7 @@ public:
 		tnear = t0;
 
 		return true;
-	}
+	}	
 
 	void getSurfaceProperties(const Vector &P, const Vector &I, const uint32_t &index, const Vector2D &uv, Vector &N, Vector2D &st) const
 	{
