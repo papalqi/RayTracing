@@ -17,7 +17,6 @@
 #include <fstream> 
 #include <cmath> 
 #include "MeshTriangle.h"
-#include <array>
 
 const float kInfinity = std::numeric_limits<float>::max();
 
@@ -45,8 +44,7 @@ bool trace(
 		float tNearK = kInfinity;
 		uint32_t indexK;
 		Vector2D uvK;
-		if (objects[k]->intersect(orig, dir, tNearK, indexK, uvK) && tNearK < tNear) 
-		{
+		if (objects[k]->intersect(orig, dir, tNearK, indexK, uvK) && tNearK < tNear) {
 			*hitObject = objects[k].get();
 			tNear = tNearK;
 			index = indexK;
@@ -73,67 +71,63 @@ Vector castRay(
 	Vector2D uv;
 	uint32_t index = 0;
 	Object *hitObject = nullptr;
-	if (trace(orig, dir, objects, tnear, index, uv, &hitObject)) 
-	{
+	if (trace(orig, dir, objects, tnear, index, uv, &hitObject)) {
 		Vector hitPoint = orig + dir * tnear;
 		Vector N; // normal 
 		Vector2D st; // st coordinates 
 		hitObject->getSurfaceProperties(hitPoint, dir, index, uv, N, st);
 		Vector tmp = hitPoint;
-		switch (hitObject->materialType) 
+		switch (hitObject->materialType) {
+		case REFLECTION_AND_REFRACTION:
 		{
-			case REFLECTION_AND_REFRACTION:
-			{
-				Vector reflectionDirection = (reflect(dir, N)).GetSafeNormal();
-				Vector refractionDirection = (refract(dir, N, hitObject->ior)).GetSafeNormal();
-				Vector reflectionRayOrig = ((reflectionDirection| N) < 0) ?
-					hitPoint - N * options.bias :
-					hitPoint + N * options.bias;
-				Vector refractionRayOrig = ((refractionDirection| N) < 0) ?
-					hitPoint - N * options.bias :
-					hitPoint + N * options.bias;
-				Vector reflectionColor = castRay(reflectionRayOrig, reflectionDirection, objects, lights, options, depth + 1, 1);
-				Vector refractionColor = castRay(refractionRayOrig, refractionDirection, objects, lights, options, depth + 1, 1);
-				float kr;
-				fresnel(dir, N, hitObject->ior, kr);
-				hitColor = reflectionColor * kr + refractionColor * (1 - kr);
-				break;
-			}
-			case REFLECTION:
-			{
-				float kr;
-				fresnel(dir, N, hitObject->ior, kr);
-				Vector reflectionDirection = reflect(dir, N);
-				Vector reflectionRayOrig = ((reflectionDirection|N) < 0) ?
-					hitPoint + N * options.bias :
-					hitPoint - N * options.bias;
-				hitColor = castRay(reflectionRayOrig, reflectionDirection, objects, lights, options, depth + 1) * kr;
-				break;
-			}
-			default:
-			{  
-				Vector lightAmt = 0, specularColor = 0;
-				Vector shadowPointOrig = ((dir| N) < 0) ?
-				hitPoint + N * options.bias :hitPoint - N * options.bias;        
-				for (uint32_t i = 0; i < lights.size(); ++i) 
-				{
-					Vector lightDir = lights[i]->position - hitPoint;
-					// square of the distance between hitPoint and the light
-					float lightDistance2 = (lightDir| lightDir);
-					lightDir = (lightDir).GetSafeNormal();
-					float LdotN = std::max(0.f, (lightDir| N));
-					Object *shadowHitObject = nullptr;
-					float tNearShadow = kInfinity;
-					// is the point in shadow, and is the nearest occluding object closer to the object than the light itself?
-					bool inShadow = trace(shadowPointOrig, lightDir, objects, tNearShadow, index, uv, &shadowHitObject) &&
-						tNearShadow * tNearShadow < lightDistance2;
-					lightAmt += (1 - inShadow) * lights[i]->intensity * LdotN;
-					Vector reflectionDirection = reflect(-lightDir, N);
-					specularColor += powf(std::max(0.f, -(reflectionDirection|dir)), hitObject->specularExponent) * lights[i]->intensity;
-				}
-				hitColor = lightAmt * hitObject->evalDiffuseColor(st) * hitObject->Kd + specularColor * hitObject->Ks;
-				break;
-			}
+			Vector reflectionDirection = (reflect(dir, N)).GetSafeNormal();
+			Vector refractionDirection = (refract(dir, N, hitObject->ior)).GetSafeNormal();
+			Vector reflectionRayOrig = ((reflectionDirection| N) < 0) ?
+				hitPoint - N * options.bias :
+				hitPoint + N * options.bias;
+			Vector refractionRayOrig = ((refractionDirection| N) < 0) ?
+				hitPoint - N * options.bias :
+				hitPoint + N * options.bias;
+			Vector reflectionColor = castRay(reflectionRayOrig, reflectionDirection, objects, lights, options, depth + 1, 1);
+			Vector refractionColor = castRay(refractionRayOrig, refractionDirection, objects, lights, options, depth + 1, 1);
+			float kr;
+			fresnel(dir, N, hitObject->ior, kr);
+			hitColor = reflectionColor * kr + refractionColor * (1 - kr);
+			break;
+		}
+		case REFLECTION:
+		{
+			float kr;
+			fresnel(dir, N, hitObject->ior, kr);
+			Vector reflectionDirection = reflect(dir, N);
+			Vector reflectionRayOrig = ((reflectionDirection|N) < 0) ?
+				hitPoint + N * options.bias :
+				hitPoint - N * options.bias;
+			hitColor = castRay(reflectionRayOrig, reflectionDirection, objects, lights, options, depth + 1) * kr;
+			break;
+		}
+		default:
+		{  Vector lightAmt = 0, specularColor = 0;
+		Vector shadowPointOrig = ((dir| N) < 0) ?
+			hitPoint + N * options.bias :
+			hitPoint - N * options.bias;        for (uint32_t i = 0; i < lights.size(); ++i) {
+			Vector lightDir = lights[i]->position - hitPoint;
+			// square of the distance between hitPoint and the light
+			float lightDistance2 = (lightDir| lightDir);
+			lightDir = (lightDir).GetSafeNormal();
+			float LdotN = std::max(0.f, (lightDir| N));
+			Object *shadowHitObject = nullptr;
+			float tNearShadow = kInfinity;
+			// is the point in shadow, and is the nearest occluding object closer to the object than the light itself?
+			bool inShadow = trace(shadowPointOrig, lightDir, objects, tNearShadow, index, uv, &shadowHitObject) &&
+				tNearShadow * tNearShadow < lightDistance2;
+			lightAmt += (1 - inShadow) * lights[i]->intensity * LdotN;
+			Vector reflectionDirection = reflect(-lightDir, N);
+			specularColor += powf(std::max(0.f, -(reflectionDirection|dir)), hitObject->specularExponent) * lights[i]->intensity;
+		}
+		hitColor = lightAmt * hitObject->evalDiffuseColor(st) * hitObject->Kd + specularColor * hitObject->Ks;
+		break;
+		}
 		}
 	}
 
@@ -141,35 +135,23 @@ Vector castRay(
 }
 
 
-void WhittedRender(
+void render(
 	const Options &options,
 	const std::vector<std::unique_ptr<Object>> &objects,
 	const std::vector<std::unique_ptr<Light>> &lights)
 {
-	vector<Vector> framebuffer;/* = new Vector[options.width * options.height];*/
-	framebuffer.resize(options.width *options.height);
-	/*Vector *pix = framebuffer;*/
+	Vector *framebuffer = new Vector[options.width * options.height];
+	Vector *pix = framebuffer;
 	float scale = tan(deg2rad(options.fov * 0.5));
 	float imageAspectRatio = options.width / (float)options.height;
 	Vector orig(0);
-	int num = 0;
-	Vector lookfrom(0, 0, 0);
-	Vector lookat(0, 0, -1);
-	float dist_to_focus = 10.0;
-	float aperture = 0.1;
-	Camera camera(lookfrom, lookat, Vector(0, 1, 0), 20, imageAspectRatio, aperture, dist_to_focus);
-
-	for (uint32_t j = 0; j < options.height; ++j) 
-	{
-		for (uint32_t i = 0; i < options.width; ++i) 
-		{
-		
+	for (uint32_t j = 0; j < options.height; ++j) {
+		for (uint32_t i = 0; i < options.width; ++i) {
 			// generate primary ray direction
-// 			float x = (2 * (i + 0.5) / (float)options.width - 1) * imageAspectRatio * scale;
-// 			float y = (1 - 2 * (j + 0.5) / (float)options.height) * scale;
-			Ray r = camera.get_ray((i + 0.5) / options.width, (j + 0.5) / options.height);
-			Vector p = r.point_at_parameter(2.0);
-			framebuffer[num++] = castRay(r.origin(), r.direction(), objects, lights, options, 0);
+			float x = (2 * (i + 0.5) / (float)options.width - 1) * imageAspectRatio * scale;
+			float y = (1 - 2 * (j + 0.5) / (float)options.height) * scale;
+			Vector dir = (Vector(x, y, -1)).GetSafeNormal();
+			*(pix++) = castRay(orig, dir, objects, lights, options, 0);
 		}
 	}
 
@@ -177,36 +159,32 @@ void WhittedRender(
 	std::ofstream ofs;
 	ofs.open("./out.ppm");
 	ofs << "P6\n" << options.width << " " << options.height << "\n255\n";
-	
-	for (uint32_t i = 0; i < options.height * options.width; ++i)
-	{
-		
-			unsigned char r = (unsigned char)(255 * clamp(0, 1, framebuffer[i].X));
-			unsigned char g = (unsigned char)(255 * clamp(0, 1, framebuffer[i].Y));
-			unsigned char b = (unsigned char)(255 * clamp(0, 1, framebuffer[i].Z));
-			ofs << r << g << b;
-		
+	for (uint32_t i = 0; i < options.height * options.width; ++i) {
+		char r = (char)(255 * clamp(0, 1, framebuffer[i].X));
+		char g = (char)(255 * clamp(0, 1, framebuffer[i].Y));
+		char b = (char)(255 * clamp(0, 1, framebuffer[i].Z));
+		ofs << r << g << b;
 	}
 
 	ofs.close();
 
-	//delete[] framebuffer;
+	delete[] framebuffer;
 }
 
 
 int main()
 {
-	//建立创景
+	// creating the scene (adding objects and lights)
 	std::vector<std::unique_ptr<Object>> objects;
 	std::vector<std::unique_ptr<Light>> lights;
-	//建立球体
+
 	Sphere *sph1 = new Sphere(Vector(-1, 0, -12), 2);
-	//材质是玻璃
 	sph1->materialType = DIFFUSE_AND_GLOSSY;
 	sph1->diffuseColor = Vector(0.6, 0.7, 0.8);
 	Sphere *sph2 = new Sphere(Vector(0.5, -0.5, -8), 1.5);
 	sph2->ior = 1.5;
 	sph2->materialType = REFLECTION_AND_REFRACTION;
+
 	objects.push_back(std::unique_ptr<Sphere>(sph1));
 	objects.push_back(std::unique_ptr<Sphere>(sph2));
 
@@ -215,22 +193,23 @@ int main()
 	Vector2D st[4] = { {0, 0}, {1, 0}, {1, 1}, {0, 1} };
 	MeshTriangle *mesh = new MeshTriangle(verts, vertIndex, 2, st);
 	mesh->materialType = DIFFUSE_AND_GLOSSY;
-	//建立地表
+
 	objects.push_back(std::unique_ptr<MeshTriangle>(mesh));
-	//添加灯光
+
 	lights.push_back(std::unique_ptr<Light>(new Light(Vector(-20, 70, 20), 0.5)));
 	lights.push_back(std::unique_ptr<Light>(new Light(Vector(30, 50, -12), 1)));
 
 	// setting up options
 	Options options;
-	options.width = 1024;
-	options.height = 512;
+	options.width = 640;
+	options.height = 480;
 	options.fov = 90;
 	options.backgroundColor = Vector(0.235294, 0.67451, 0.843137);
 	options.maxDepth = 5;
 	options.bias = 0.00001;
 
-	WhittedRender(options, objects, lights);
+	// finally, render
+	render(options, objects, lights);
 
 	return 0;
 }
