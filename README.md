@@ -1,6 +1,9 @@
 计划：
-- [ ] `Ray Casting` ray tracing
+- [x] `Ray Casting` ray tracing
+![](./Image/RayCasting.png)
+
 - [x] `Whitted ray tracing` 
+
 ![](./Image/Whitted.png)
 - [ ] `distributed  ray tracing` 
 - [ ] `Path Tracing` 

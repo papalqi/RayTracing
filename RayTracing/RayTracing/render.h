@@ -22,6 +22,13 @@
 
 const float kInfinity = std::numeric_limits<float>::max();
 
+enum RENDERTYPE
+{
+	RayCast,
+	Whitted,
+
+};
+
 struct Options
 {
 	uint32_t width;
@@ -31,28 +38,41 @@ struct Options
 	uint8_t maxDepth;
 	Vector backgroundColor;
 	float bias;
+	RENDERTYPE renderType;
+
 };
 
 
 class Render
 {
 public:
+	Render(Options  &options) {this->options = &options;}
 	bool trace(
 	const Vector &orig, const Vector &dir,
 	const std::vector<std::unique_ptr<Object>> &objects,
 	float &tNear, uint32_t &index, Vector2D &uv, Object **hitObject);
-Vector castRay(
+Vector WhittedColor(
 	const Vector &orig, const Vector &dir,
 	const std::vector<std::unique_ptr<Object>> &objects,
 	const std::vector<std::unique_ptr<Light>> &lights,
-	const Options &options,
 	uint32_t depth,
 	bool test = false);
 
 
-void rendering(
-	const Options &options,
+void Rendering(
+
 	const std::vector<std::unique_ptr<Object>> &objects,
 	const std::vector<std::unique_ptr<Light>> &lights);
+
+
+Vector  RayCastColor(
+	const Vector &orig, const Vector &dir,
+	const std::vector<std::unique_ptr<Object>> &objects,
+	const std::vector<std::unique_ptr<Light>> &lights,
+	bool test = false);
+void OutputImage(string paths, string name, Vector *);
+
+private: 
+	Options *options;
 };
 

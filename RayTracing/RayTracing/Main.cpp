@@ -37,9 +37,10 @@ int main()
 	options.backgroundColor = LightSkyBlue;
 	options.maxDepth = 5;
 	options.bias = 0.00001;
+	options.renderType = Whitted;
 
-	Render whittedRender;
-	whittedRender.rendering(options, objects, lights);
+	Render whittedRender(options);
+	whittedRender.Rendering( objects, lights);
 
 	return 0;
 }
