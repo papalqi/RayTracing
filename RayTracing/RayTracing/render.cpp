@@ -111,6 +111,7 @@ inline Vector Render::castRay(const Vector & orig, const Vector & dir, const std
 
 void Render::rendering(const Options &options, const std::vector<std::unique_ptr<Object>> &objects, const std::vector<std::unique_ptr<Light>> &lights)
 {
+	//设置输出大小
 	Vector *framebuffer = new Vector[options.width * options.height];
 	Vector *pix = framebuffer;
 	float scale = tan(deg2rad(options.fov * 0.5));
@@ -120,7 +121,7 @@ void Render::rendering(const Options &options, const std::vector<std::unique_ptr
 	{
 		for (uint32_t i = 0; i < options.width; ++i)
 		{
-			// generate primary ray direction
+			//我们要把所有的i，j分配到NDC坐标当中
 			float x = (2 * (i + 0.5) / (float)options.width - 1) * imageAspectRatio * scale;
 			float y = (1 - 2 * (j + 0.5) / (float)options.height) * scale;
 			Vector dir = (Vector(x, y, -1)).GetSafeNormal();
