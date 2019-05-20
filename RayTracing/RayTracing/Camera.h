@@ -5,7 +5,7 @@
 class Ray;
 
 
-Vector random_in_unit_disk() {
+inline Vector random_in_unit_disk() {
 	Vector p;
 	do {
 		p = 2.0*Vector(drand48(), drand48(), 0) - Vector(1, 1, 0);

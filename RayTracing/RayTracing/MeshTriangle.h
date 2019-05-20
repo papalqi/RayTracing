@@ -2,7 +2,7 @@
 #include "CoreMinimal.h"
 #include "Object.h"
 #include "Color.h"
-
+inline
 bool rayTriangleIntersect(
 	const Vector &v0, const Vector &v1, const Vector &v2,
 	const Vector &orig, const Vector &dir,

@@ -81,3 +81,14 @@ RayTracing/GCMath/x64/Debug/Vector3.obj
 RayTracing/GCMath/x64/Debug/Vector4.obj
 RayTracing/.vs/RayTracing/v15/ipch/AutoPCH/4f5b056f84bfa709/FIRSTHIT.ipch
 RayTracing/.vs/RayTracing/v15/ipch/AutoPCH/9a8cf3a8fbbc4a33/COLOR.ipch
+RayTracing/.vs/RayTracing/v15/ipch/AutoPCH/d2d6336cc0caf094/RENDER.ipch
+RayTracing/.vs/RayTracing/v15/ipch/AutoPCH/b06c61527d447458/MESHTRIANGLE.ipch
+RayTracing/.vs/RayTracing/v15/ipch/AutoPCH/74305b8280cd43fa/RENDER.ipch
+RayTracing/.vs/RayTracing/v15/ipch/AutoPCH/444e302156924754/WHITTED.ipch
+RayTracing/.vs/RayTracing/v15/ipch/AutoPCH/fe055433bdeb7461/WHITTED.ipch
+RayTracing/.vs/RayTracing/v15/ipch/AutoPCH/b3f3e75df587f6ac/SHPERE.ipch
+RayTracing/.vs/RayTracing/v15/ipch/AutoPCH/a0a5b5390b6622a7/RENDER.ipch
+RayTracing/RayTracing/x64/Debug/Render.obj
+RayTracing/RayTracing/x64/Debug/MeshTriangle.obj
+RayTracing/RayTracing/x64/Debug/ObjectList.obj
+RayTracing/RayTracing/x64/Debug/Shpere.obj
