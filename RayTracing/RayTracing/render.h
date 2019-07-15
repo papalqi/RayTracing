@@ -6,7 +6,6 @@
 #include"Shpere.h"
 #include"material.h"
 #include "ObjectList.h"
-
 #include "Light.h"
 #include <cstdio> 
 #include <cstdlib> 
@@ -26,6 +25,10 @@ enum RENDERTYPE
 {
 	RayCast,
 	Whitted,
+	distributed,
+	pathTracing,
+	BidirectionalPathTracing,
+	Metropolis,
 
 };
 
@@ -47,32 +50,38 @@ class Render
 {
 public:
 	Render(Options  &options) {this->options = &options;}
-	bool trace(
+
+	virtual bool trace(
 	const Vector &orig, const Vector &dir,
 	const std::vector<std::unique_ptr<Object>> &objects,
 	float &tNear, uint32_t &index, Vector2D &uv, Object **hitObject);
-Vector WhittedColor(
-	const Vector &orig, const Vector &dir,
-	const std::vector<std::unique_ptr<Object>> &objects,
-	const std::vector<std::unique_ptr<Light>> &lights,
-	uint32_t depth,
-	bool test = false);
 
 
-void Rendering(
-
-	const std::vector<std::unique_ptr<Object>> &objects,
+	//所有的渲染入口
+virtual void Rendering(const std::vector<std::unique_ptr<Object>> &objects,
 	const std::vector<std::unique_ptr<Light>> &lights);
 
-
-Vector  RayCastColor(
-	const Vector &orig, const Vector &dir,
-	const std::vector<std::unique_ptr<Object>> &objects,
-	const std::vector<std::unique_ptr<Light>> &lights,
-	bool test = false);
+virtual	Vector Shader(
+	const Vector& orig, const Vector& dir,
+	const std::vector<std::unique_ptr<Object>>& objects,
+	const std::vector<std::unique_ptr<Light>>& lights,
+	uint32_t depth,
+	bool test = false) = 0;
+//输出图片
 void OutputImage(string paths, string name, Vector *);
+//初始化场景
+void InitScene();
 
-private: 
+public:
+	std::vector<std::unique_ptr<Object>> objects;
+	std::vector<std::unique_ptr<Light>> lights;
+protected:
+
 	Options *options;
 };
+
+
+
+
+
 

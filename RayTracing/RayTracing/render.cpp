@@ -21,96 +21,7 @@ bool Render::trace(const Vector &orig, const Vector &dir, const std::vector<std:
 	return (*hitObject != nullptr);
 }
 
-inline Vector Render::WhittedColor(const Vector & orig, const Vector & dir, const std::vector<std::unique_ptr<Object>>& objects, const std::vector<std::unique_ptr<Light>>& lights,  uint32_t depth, bool test)
-{
-	if (depth > options->maxDepth)
-	{
-		return options->backgroundColor;
-	}
 
-	Vector hitColor = options->backgroundColor;
-	float tnear = kInfinity;
-	Vector2D uv;
-	uint32_t index = 0;
-	Object *hitObject = nullptr;
-	if (trace(orig, dir, objects, tnear, index, uv, &hitObject))
-	{
-		Vector hitPoint = orig + dir * tnear;
-		Vector normal; // normal 
-		Vector2D st; // st coordinates 
-		hitObject->getSurfaceProperties(hitPoint, dir, index, uv, normal, st);
-		Vector tmp = hitPoint;
-		switch (hitObject->materialType)
-		{
-		case REFLECTION_AND_REFRACTION:
-		{
-			Vector reflectionDirection = (reflect(dir, normal)).GetSafeNormal();
-			Vector refractionDirection = (refract(dir, normal, hitObject->ior)).GetSafeNormal();
-			Vector reflectionRayOrig = ((reflectionDirection | normal) < 0) ?
-				hitPoint - normal * options->bias :
-				hitPoint + normal * options->bias;
-			Vector refractionRayOrig = ((refractionDirection | normal) < 0) ?
-				hitPoint - normal * options->bias :
-				hitPoint + normal * options->bias;
-			Vector reflectionColor = WhittedColor(reflectionRayOrig, reflectionDirection, objects, lights, depth + 1, 1);
-			Vector refractionColor = WhittedColor(refractionRayOrig, refractionDirection, objects, lights, depth + 1, 1);
-			float kr;
-			fresnel(dir, normal, hitObject->ior, kr);
-			hitColor = reflectionColor * kr + refractionColor * (1 - kr);
-			break;
-		}
-		case REFLECTION:
-		{
-			float kr;
-			fresnel(dir, normal, hitObject->ior, kr);
-			Vector reflectionDirection = reflect(dir, normal);
-			Vector reflectionRayOrig = ((reflectionDirection | normal) < 0) ?
-				hitPoint + normal * options->bias :
-				hitPoint - normal * options->bias;
-			hitColor = WhittedColor(reflectionRayOrig, reflectionDirection, objects, lights, depth + 1) * kr;
-			break;
-		}
-		default:
-		{
-			//环境光、高光
-			Vector lightAmt = 0, specularColor = 0;
-			float ShadowFact=0;
-			Vector shadowPointOrig = ((dir | normal) < 0) ?
-				hitPoint + normal * options->bias :
-				hitPoint - normal * options->bias;
-			for (uint32_t i = 0; i < lights.size(); ++i)
-			{
-				//到灯光的方向
-				Vector lightDir = lights[i]->position - hitPoint;
-				// 距离的平方
-				float lightDistance2 = (lightDir | lightDir);
-				lightDir = (lightDir).GetSafeNormal();
-				float LdotN = std::max(0.f, (lightDir | normal));
-				Object *shadowHitObject = nullptr;
-				float tNearShadow = kInfinity;
-				// 判断是否是在阴影中并且还要是距离，其还不能是最近的
-				bool inShadow = trace(shadowPointOrig, lightDir, objects, tNearShadow, index, uv, &shadowHitObject) &&
-					tNearShadow * tNearShadow < lightDistance2;
-				ShadowFact += inShadow/ lights.size();
-				//计算
-				lightAmt += (1 - inShadow) * lights[i]->intensity * LdotN;
-				Vector reflectionDirection = reflect(-lightDir, normal);
-				//for debug
-				auto Tema = std::max(0.f, ((-reflectionDirection) | dir));
-				specularColor += powf(Tema, hitObject->specularExponent) * lights[i]->intensity;
-			}
-			//phone模型为：环境光+漫反射光+高光
-			Color AmbineLight =  0.1*lightAmt*(1 - ShadowFact);
-			Color DiffuseLight = (1-ShadowFact)*hitObject->evalDiffuseColor(st) * hitObject->Kd;
-			Color SpecularLight = specularColor * hitObject->Ks;
-			hitColor = AmbineLight + DiffuseLight + specularColor;
-			break;
-		}
-		}
-	}
-
-	return hitColor;
-}
 
 void Render::Rendering(  const std::vector<std::unique_ptr<Object>> &objects, const std::vector<std::unique_ptr<Light>> &lights)
 {
@@ -128,15 +39,7 @@ void Render::Rendering(  const std::vector<std::unique_ptr<Object>> &objects, co
 			float x = (2 * (i + 0.5) / (float)options->width - 1) * imageAspectRatio * scale;
 			float y = (1 - 2 * (j + 0.5) / (float)options->height) * scale;
 			Vector dir = (Vector(x, y, -1)).GetSafeNormal();
-			if (options->renderType == Whitted)
-			{
-				*(pix++) = WhittedColor(orig, dir, objects, lights, 0);
-
-			}
-			if (options->renderType == RayCast)
-			{
-				*(pix++) = RayCastColor(orig, dir, objects, lights, 0);
-			}
+			*(pix++) = Shader(orig, dir, objects, lights, 0);
 		}
 	}
 	OutputImage("./","out.ppm", framebuffer);
@@ -144,62 +47,7 @@ void Render::Rendering(  const std::vector<std::unique_ptr<Object>> &objects, co
 }
 
 
-oocd::Vector Render::RayCastColor(const Vector &orig, const Vector &dir, const std::vector<std::unique_ptr<Object>> &objects, 
-	const std::vector<std::unique_ptr<Light>> &lights, bool test /*= false*/)
-{
 
-	Vector hitColor = options->backgroundColor;
-	float tnear = kInfinity;
-	Vector2D uv;
-	uint32_t index = 0;
-	Object *hitObject = nullptr;
-	if (trace(orig, dir, objects, tnear, index, uv, &hitObject))
-	{
-		Vector hitPoint = orig + dir * tnear;
-		Vector normal; // normal 
-		Vector2D st; // st coordinates 
-		hitObject->getSurfaceProperties(hitPoint, dir, index, uv, normal, st);
-		Vector tmp = hitPoint;
-		
-			//环境光、高光
-			Vector lightAmt = 0, specularColor = 0;
-			float ShadowFact = 0;
-			Vector shadowPointOrig = ((dir | normal) < 0) ?
-				hitPoint + normal * options->bias :
-				hitPoint - normal * options->bias;
-			for (uint32_t i = 0; i < lights.size(); ++i)
-			{
-				//到灯光的方向
-				Vector lightDir = lights[i]->position - hitPoint;
-				// 距离的平方
-				float lightDistance2 = (lightDir | lightDir);
-				lightDir = (lightDir).GetSafeNormal();
-				float LdotN = std::max(0.f, (lightDir | normal));
-				Object *shadowHitObject = nullptr;
-				float tNearShadow = kInfinity;
-				// 判断是否是在阴影中并且还要是距离，其还不能是最近的
-				bool inShadow = trace(shadowPointOrig, lightDir, objects, tNearShadow, index, uv, &shadowHitObject) &&
-					tNearShadow * tNearShadow < lightDistance2;
-				ShadowFact += inShadow / lights.size();
-				//计算
-				lightAmt += (1 - inShadow) * lights[i]->intensity * LdotN;
-				Vector reflectionDirection = reflect(-lightDir, normal);
-				//for debug
-				auto Tema = std::max(0.f, ((-reflectionDirection) | dir));
-				specularColor += powf(Tema, hitObject->specularExponent) * lights[i]->intensity;
-			}
-			//phone模型为：环境光+漫反射光+高光
-			Color AmbineLight = 0.1*lightAmt*(1 - ShadowFact);
-			Color DiffuseLight = (1 - ShadowFact)*hitObject->evalDiffuseColor(st) * hitObject->Kd;
-			Color SpecularLight = specularColor * hitObject->Ks;
-			hitColor = AmbineLight + DiffuseLight + specularColor;
-		
-		
-	}
-	
-
-	return hitColor;
-}
 
 void Render::OutputImage(string paths, string name, Vector * framebuffer)
 {
@@ -215,4 +63,29 @@ void Render::OutputImage(string paths, string name, Vector * framebuffer)
 	}
 
 	ofs.close();
+}
+
+void Render::InitScene()
+{
+
+	Sphere* sph1 = new Sphere(Vector(-1, 0, -12), 2);
+	sph1->materialType = DIFFUSE_AND_GLOSSY;
+	sph1->diffuseColor = Vector(0.6, 0.7, 0.8);
+	Sphere* sph2 = new Sphere(Vector(0.5, -0.5, -8), 1.5);
+	sph2->ior = 1.5;
+	sph2->materialType = REFLECTION_AND_REFRACTION;
+
+	objects.push_back(std::unique_ptr<Sphere>(sph1));
+	objects.push_back(std::unique_ptr<Sphere>(sph2));
+	Vector verts[4] = { {-5,-3,-6}, {5,-3,-6}, {5,-3,-16}, {-5,-3,-16} };
+	uint32_t vertIndex[6] = { 0, 1, 3, 1, 2, 3 };
+	Vector2D st[4] = { {0, 0}, {1, 0}, {1, 1}, {0, 1} };
+	MeshTriangle* mesh = new MeshTriangle(verts, vertIndex, 2, st);
+	mesh->materialType = DIFFUSE_AND_GLOSSY;
+
+	objects.push_back(std::unique_ptr<MeshTriangle>(mesh));
+
+	lights.push_back(std::unique_ptr<Light>(new Light(Vector(-20, 70, 20), 0.5)));
+	lights.push_back(std::unique_ptr<Light>(new Light(Vector(30, 50, -12), 1)));
+
 }
