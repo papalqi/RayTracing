@@ -2,13 +2,13 @@
 #include "CoreMinimal.h"
 #include "Random.h"
 #include "Ray.h"
-class Ray;
+struct Ray;
 
 
 inline Vector random_in_unit_disk() {
 	Vector p;
 	do {
-		p = 2.0*Vector(drand48(), drand48(), 0) - Vector(1, 1, 0);
+		p = 2.0*Vector(float(drand48()), float(drand48()), 0) - Vector(1, 1, 0);
 	} while ((p| p) >= 1.0);
 	return p;
 }
@@ -26,7 +26,8 @@ struct Camera
 	double width, height;
 
 
-	Camera(Vector lookfrom, Vector lookat, Vector vup, float vfov, float aspect, float aperture, float focus_dist) { // vfov is top to bottom in degrees
+	Camera(Vector lookfrom, Vector lookat, Vector vup, float vfov, float aspect, float aperture, float focus_dist) 
+	{ // vfov is top to bottom in degrees
 		lens_radius = aperture / 2;
 		float theta = vfov * PI / 180;
 		float half_height = tan(theta / 2);

@@ -9,15 +9,13 @@
 
 int main(int argc, char* argv[])
 {
-
-	
 	Options options;
 	options.width = OUT_IMAGE_SIZEX;
 	options.height = OUT_IMAGE_SIZEY;
 	options.fov = 90;
 	options.backgroundColor = LightSkyBlue;
 	options.maxDepth = 5;
-	options.bias = 0.00001;
+	options.bias = 0.00001f;
 	Render * FuckingRender=nullptr;
 	if (argc != 2)
 	{
@@ -51,7 +49,7 @@ int main(int argc, char* argv[])
 	}
 	if (FuckingRender == nullptr)
 		return 0;
-
+	
 	FuckingRender->InitScene();
 	FuckingRender->Rendering(FuckingRender->objects, FuckingRender->lights);
 

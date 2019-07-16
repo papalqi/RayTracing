@@ -8,11 +8,11 @@ inline bool solveQuadratic(const float &a, const float &b, const float &c, float
 {
 	float discr = b * b - 4 * a * c;
 	if (discr < 0) return false;
-	else if (discr == 0) x0 = x1 = -0.5 * b / a;
+	else if (discr == 0) x0 = x1 = -0.5f * b / a;
 	else {
 		float q = (b > 0) ?
-			-0.5 * (b + sqrt(discr)) :
-			-0.5 * (b - sqrt(discr));
+			-0.5f * (b + sqrt(discr)) :
+			-0.5f * (b - sqrt(discr));
 		x0 = q / a;
 		x1 = c / q;
 	}
@@ -24,28 +24,25 @@ class Sphere : public Object
 {
 public:
 	Sphere(const Vector &c, const float &r) : center(c), radius(r), radius2(r * r) {}
-	bool intersect(const Vector &orig, const Vector &dir, float &tnear, uint32_t &index, Vector2D &uv) const
-	{
-		// analytic solution
-		Vector L = orig - center;
-		float a = (dir | dir);
-		float b = 2 * (dir | L);
-		float c = (L | L) - radius2;
-		float t0, t1;
-		if (!solveQuadratic(a, b, c, t0, t1)) return false;
-		if (t0 < 0) t0 = t1;
-		if (t0 < 0) return false;
-		tnear = t0;
+	bool intersect(const Vector &orig, const Vector &dir, float &tnear, uint32_t &index, Vector2D &uv) const;	
 
-		return true;
-	}	
+	void getSurfaceProperties(const Vector &P, const Vector &I, const uint32_t &index, const Vector2D &uv, Vector &N, Vector2D &st) const;
+public:
+	int		getType() { return SPHERE; }
+	Vector& getCentre() { return center; }
+	float	getRadius() { return radius; }
+	float	getSqRadius() { return radius2; }
+	Color	getColor(Vector& p_Pos);
 
-	void getSurfaceProperties(const Vector &P, const Vector &I, const uint32_t &index, const Vector2D &uv, Vector &N, Vector2D &st) const
+	inline Vector getNormal(Vector& p_Pos) { return (p_Pos - center) / radius; }
+	inline Vector getNormal(Vector& p_Pos, Vector& p_RayO)
 	{
-		N = (P - center).GetSafeNormal();
+		Vector ret = p_Pos - center;
+		return ret;
 	}
-
+public:
 	Vector center;
-	float radius, radius2;
+	float radius;
+	float radius2;
 };
 

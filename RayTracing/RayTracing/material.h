@@ -1,66 +1,50 @@
 #pragma once
 #include "CoreMinimal.h"
+#include "MaterialMath.h"
 #include "Random.h"
 #include "Ray.h"
-#include "Object.h"
-//
-inline float clamp(const float &lo, const float &hi, const float &v)
-{
-	return std::max(lo, std::min(hi, v));
-}
-inline float deg2rad(const float &deg)
-{
-	return deg * PI / 180;
-}
-inline Vector mix(const Vector &a, const Vector& b, const float &mixValue)
-{
-	return a * (1 - mixValue) + b * mixValue;
-}
 
-float schlick(float cosine, float ref_idx);
-//散射
-Vector refract(const Vector &I, const Vector &N, const float &ior);
-
-bool refract(const Vector& v, const Vector& n, float ni_over_nt, Vector& refracted);
-
-//反射
-Vector reflect(const Vector& v, const Vector& n);
+#include "Texture.h"
 
 
-void fresnel(const Vector &I, const Vector &N, const float &ior, float &kr);
-//在球体内进行采样
-Vector random_in_unit_sphere();
-
-
-
-class material {
-public:
-	virtual bool scatter(const Ray& r_in, const hit_record& rec, Vector& attenuation, Ray& scattered) const = 0;
-};
-
-class lambertian : public material 
+class material 
 {
 public:
-	lambertian(const Vector& a) : albedo(a) {}
-	virtual bool scatter(const Ray& r_in, const hit_record& rec, Vector& attenuation, Ray& scattered) const;
+	material();
+	inline void setColor(Color& p_Color) { m_Color = p_Color; m_Tex = NULL; m_TexRatio = m_TexRatioDao = 1.0; }
+	inline Color getColor() { return m_Color; }
+	inline void setSpecular(double p_Spec) { m_Spec = p_Spec; }//高光
+	inline void setDiffuse(double p_Diff) { m_Diff = p_Diff; }
+	inline void setReflection(double p_Refl) { m_Refl = p_Refl; }
+	inline void setDiffRefl(double p_DiffRefl) { m_DiffRefl = p_DiffRefl; }
+	inline void setRefraction(double p_Refr) { m_Refr = p_Refr; }
+	inline void setRefr_Rate(double p_Refr_Rate) { m_Refr_Rate = p_Refr_Rate; }
+	inline double getSpecular() { return m_Spec; }//高光
+	inline double getDiffuse() { return m_Diff; }//漫反射
+	inline double getReflection() { return m_Refl; }
+	inline double getDiffRefl() { return m_DiffRefl; }
+	inline double getRefraction() { return m_Refr; }
+	inline double getRefr_Rate() { return m_Refr_Rate; }
 
-	Vector albedo;
+	inline void setTexure(Texture* p_Tex) { m_Tex = p_Tex; }
+	inline Texture* getTexure() { return m_Tex; }
+	inline void setTexRatio(double p_TexRatio) { m_TexRatio = p_TexRatio; m_TexRatioDao = 1.0 / p_TexRatio; }
+	inline double getTexRatio() { return m_TexRatio; }
+	inline double getTexRatioDao() { return m_TexRatioDao; }
+	//virtual bool scatter(const Ray& r_in, const hit_record& rec, Vector& attenuation, Ray& scattered) const ;
+private:
+	Color m_Color;//材质颜色
+	double m_Refl;//反射系数
+	double m_DiffRefl;//漫镜面反射系数
+	double m_Diff;//漫反射系数
+	double m_Spec;//高光
+	double m_Refr;//透射率
+	double m_Refr_Rate;//折射率
+	Texture* m_Tex;
+	double m_TexRatio;//一块纹理的放大倍数
+	double m_TexRatioDao;//一块纹理的放大倍数的倒数
 };
 
-class metal : public material 
-{
-public:
-	metal(const Vector& a, float f) : albedo(a) { if (f < 1) fuzz = f; else fuzz = 1; }
-	virtual bool scatter(const Ray& r_in, const hit_record& rec, Vector& attenuation, Ray& scattered) const;
-	Vector albedo;
-	float fuzz;
-};
 
-class dielectric : public material 
-{
-public:
-	dielectric(float ri) : ref_idx(ri) {}
-	virtual bool scatter(const Ray& r_in, const hit_record& rec, Vector& attenuation, Ray& scattered) const;
 
-	float ref_idx;
-};
+

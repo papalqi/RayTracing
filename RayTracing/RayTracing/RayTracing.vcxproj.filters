@@ -13,14 +13,17 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\NewFilter1">
+    <Filter Include="Header Files\光照算法">
       <UniqueIdentifier>{a9556de7-3e50-43be-a886-654ecf54af7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Object">
+      <UniqueIdentifier>{3a20b206-ad78-41e6-9271-110ac08aecf6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\MaterialAndTex">
+      <UniqueIdentifier>{e352b9e6-6783-48c1-b1b4-e230c2587c1d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Object.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Ray.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -30,28 +33,10 @@
     <ClInclude Include="Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Plane.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="material.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Random.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Shpere.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ObjectList.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Light.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MeshTriangle.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Color.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="render.h">
@@ -61,22 +46,49 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BidirectionalPathTracingRender.h">
-      <Filter>Header Files\NewFilter1</Filter>
+      <Filter>Header Files\光照算法</Filter>
     </ClInclude>
     <ClInclude Include="DistributedRender.h">
-      <Filter>Header Files\NewFilter1</Filter>
+      <Filter>Header Files\光照算法</Filter>
     </ClInclude>
     <ClInclude Include="MetropolisRender.h">
-      <Filter>Header Files\NewFilter1</Filter>
+      <Filter>Header Files\光照算法</Filter>
     </ClInclude>
     <ClInclude Include="PathTracingRender.h">
-      <Filter>Header Files\NewFilter1</Filter>
+      <Filter>Header Files\光照算法</Filter>
     </ClInclude>
     <ClInclude Include="RayCasting.h">
-      <Filter>Header Files\NewFilter1</Filter>
+      <Filter>Header Files\光照算法</Filter>
     </ClInclude>
     <ClInclude Include="WhittedRender.h">
-      <Filter>Header Files\NewFilter1</Filter>
+      <Filter>Header Files\光照算法</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>Header Files\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshTriangle.h">
+      <Filter>Header Files\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Shpere.h">
+      <Filter>Header Files\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Color.h">
+      <Filter>Header Files\MaterialAndTex</Filter>
+    </ClInclude>
+    <ClInclude Include="material.h">
+      <Filter>Header Files\MaterialAndTex</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialMath.h">
+      <Filter>Header Files\MaterialAndTex</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectList.h">
+      <Filter>Header Files\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Header Files\MaterialAndTex</Filter>
+    </ClInclude>
+    <ClInclude Include="Plane.h">
+      <Filter>Header Files\Object</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -105,6 +117,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MetropolisRender.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Shpere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

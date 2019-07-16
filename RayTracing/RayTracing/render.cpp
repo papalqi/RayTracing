@@ -28,7 +28,7 @@ void Render::Rendering(  const std::vector<std::unique_ptr<Object>> &objects, co
 	//设置输出大小
 	Vector *framebuffer = new Vector[options->width * options->height];
 	Vector *pix = framebuffer;
-	float scale = tan(deg2rad(options->fov * 0.5));
+	float scale = tan(RTMath::deg2rad(options->fov * 0.5));
 	float imageAspectRatio = options->width / (float)options->height;
 	Vector orig(0);
 	for (uint32_t j = 0; j < options->height; ++j)
@@ -56,9 +56,9 @@ void Render::OutputImage(string paths, string name, Vector * framebuffer)
 	ofs << "P6\n" << options->width << " " << options->height << "\n255\n";
 	for (uint32_t i = 0; i < options->height * options->width; ++i)
 	{
-		char r = (char)(255 * clamp(0, 1, framebuffer[i].X));
-		char g = (char)(255 * clamp(0, 1, framebuffer[i].Y));
-		char b = (char)(255 * clamp(0, 1, framebuffer[i].Z));
+		char r = (char)(255 * RTMath::clamp(0, 1, framebuffer[i].X));
+		char g = (char)(255 * RTMath::clamp(0, 1, framebuffer[i].Y));
+		char b = (char)(255 * RTMath::clamp(0, 1, framebuffer[i].Z));
 		ofs << g << b << r;
 	}
 

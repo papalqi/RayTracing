@@ -93,10 +93,10 @@ public:
 
 	Vector evalDiffuseColor(const Vector2D &st) const
 	{
-		float scale = 5;
-		float pattern = (fmodf(st.X * scale, 1) > 0.5) ^ (fmodf(st.Y * scale, 1) > 0.5);
+		float scale = 5.f;
+		float pattern = (fmodf(st.X * scale, 1.f) > 0.5f) ^ (fmodf(st.Y * scale, 1.f) > 0.5f);
 
-		return mix(Red, Yellow, pattern);
+		return RTMath::mix(Red, Yellow, pattern);
 	}
 	//¶¥µãÊý¾Ý
 	std::unique_ptr<Vector[]> vertices;

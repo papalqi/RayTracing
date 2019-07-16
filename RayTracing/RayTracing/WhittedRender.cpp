@@ -26,8 +26,8 @@
 		{
 		case REFLECTION_AND_REFRACTION:
 		{
-			Vector reflectionDirection = (reflect(dir, normal)).GetSafeNormal();
-			Vector refractionDirection = (refract(dir, normal, hitObject->ior)).GetSafeNormal();
+			Vector reflectionDirection = (RTMath::reflect(dir, normal)).GetSafeNormal();
+			Vector refractionDirection = (RTMath::refract(dir, normal, hitObject->ior)).GetSafeNormal();
 			Vector reflectionRayOrig = ((reflectionDirection | normal) < 0) ?
 				hitPoint - normal * options->bias :
 				hitPoint + normal * options->bias;
@@ -37,15 +37,15 @@
 			Vector reflectionColor = Shader(reflectionRayOrig, reflectionDirection, objects, lights, depth + 1, 1);
 			Vector refractionColor = Shader(refractionRayOrig, refractionDirection, objects, lights, depth + 1, 1);
 			float kr;
-			fresnel(dir, normal, hitObject->ior, kr);
+			RTMath::fresnel(dir, normal, hitObject->ior, kr);
 			hitColor = reflectionColor * kr + refractionColor * (1 - kr);
 			break;
 		}
 		case REFLECTION:
 		{
 			float kr;
-			fresnel(dir, normal, hitObject->ior, kr);
-			Vector reflectionDirection = reflect(dir, normal);
+			RTMath::fresnel(dir, normal, hitObject->ior, kr);
+			Vector reflectionDirection = RTMath::reflect(dir, normal);
 			Vector reflectionRayOrig = ((reflectionDirection | normal) < 0) ?
 				hitPoint + normal * options->bias :
 				hitPoint - normal * options->bias;
@@ -75,14 +75,14 @@
 					tNearShadow * tNearShadow < lightDistance2;
 				ShadowFact += inShadow / lights.size();
 				//计算
-				lightAmt += (1 - inShadow) * lights[i]->intensity * LdotN;
-				Vector reflectionDirection = reflect(-lightDir, normal);
+				lightAmt += (1.f- inShadow) * lights[i]->intensity * LdotN;
+				Vector reflectionDirection = RTMath::reflect(-lightDir, normal);
 				//for debug
 				auto Tema = std::max(0.f, ((-reflectionDirection) | dir));
 				specularColor += powf(Tema, hitObject->specularExponent) * lights[i]->intensity;
 			}
 			//phone模型为：环境光+漫反射光+高光
-			Color AmbineLight = 0.1 * lightAmt * (1 - ShadowFact);
+			Color AmbineLight = 0.1f * lightAmt * (1 - ShadowFact);
 			Color DiffuseLight = (1 - ShadowFact) * hitObject->evalDiffuseColor(st) * hitObject->Kd;
 			Color SpecularLight = specularColor * hitObject->Ks;
 			hitColor = AmbineLight + DiffuseLight + specularColor;

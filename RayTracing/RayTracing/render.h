@@ -18,7 +18,7 @@
 #include <cmath> 
 #include "MeshTriangle.h"
 #include "Color.h"
-
+#include "MaterialMath.h"
 const float kInfinity = std::numeric_limits<float>::max();
 
 enum RENDERTYPE

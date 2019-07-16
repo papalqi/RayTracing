@@ -44,8 +44,8 @@ oocd::Vector RayCastingRender::Shader(
 				tNearShadow * tNearShadow < lightDistance2;
 			ShadowFact += inShadow / lights.size();
 			//¼ÆËã
-			lightAmt += (1 - inShadow) * lights[i]->intensity * LdotN;
-			Vector reflectionDirection = reflect(-lightDir, normal);
+			lightAmt += (1.0f- inShadow) * lights[i]->intensity * LdotN;
+			Vector reflectionDirection = RTMath::reflect(-lightDir, normal);
 			//for debug
 			auto Tema = std::max(0.f, ((-reflectionDirection) | dir));
 			specularColor += powf(Tema, hitObject->specularExponent) * lights[i]->intensity;
