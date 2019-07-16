@@ -29,10 +29,9 @@ public:
 		materialType(DIFFUSE_AND_GLOSSY),
 		ior(1.3f), Kd(0.8f), Ks(0.2f), diffuseColor(0.2f), specularExponent(25.0f) {}
 
-
+	virtual bool intersect(Ray o_ray, float &dist) = 0;
 	virtual bool intersect(const Vector &, const Vector &, float &, uint32_t &, Vector2D &) const = 0;
-	//virtual bool intersect(const Vector&, const Vector&, float&, uint32_t&, Vector2D&) const = 0;
-	virtual void getSurfaceProperties(const Vector &, const Vector &, const uint32_t &, const Vector2D &, Vector &, Vector2D &) const = 0;
+	//virtual void getSurfaceProperties(const Vector &, const Vector &, const uint32_t &, const Vector2D &, Vector &, Vector2D &) const;
 	virtual Vector evalDiffuseColor(const Vector2D &) const { return diffuseColor; }
 public:
 	 material* getMaterial() { return &m_Material; }

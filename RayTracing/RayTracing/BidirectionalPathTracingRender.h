@@ -5,6 +5,7 @@ class BidirectionalPathTracingRender :public Render
 public:
 
 	BidirectionalPathTracingRender(Options& options) :Render(options) {};
+	Vector Shader(const Ray p_ray, uint32_t depth, bool test = false) { return 0; };
 
 	Vector Shader(
 		const Vector& orig, const Vector& dir,

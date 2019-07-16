@@ -5,7 +5,7 @@
 #include"MathBase.h"
 
 //计算常量
-#define PI 					(3.1415926535897932f)
+#define PI 					(3.141592653589793238462f)
 #define SMALL_NUMBER		(1.e-8f)
 #define KINDA_SMALL_NUMBER	(1.e-4f)
 #define BIG_NUMBER			(3.4e+38f)

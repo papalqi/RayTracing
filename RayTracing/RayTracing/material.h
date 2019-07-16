@@ -11,7 +11,7 @@ class material
 {
 public:
 	material();
-	inline void setColor(Color& p_Color) { m_Color = p_Color; m_Tex = NULL; m_TexRatio = m_TexRatioDao = 1.0; }
+	inline void setColor(Color p_Color) { m_Color = p_Color; m_Tex = NULL; m_TexRatio = m_TexRatioDao = 1.0; }
 	inline Color getColor() { return m_Color; }
 	inline void setSpecular(double p_Spec) { m_Spec = p_Spec; }//ธ฿นโ
 	inline void setDiffuse(double p_Diff) { m_Diff = p_Diff; }
@@ -25,7 +25,7 @@ public:
 	inline double getDiffRefl() { return m_DiffRefl; }
 	inline double getRefraction() { return m_Refr; }
 	inline double getRefr_Rate() { return m_Refr_Rate; }
-
+	
 	inline void setTexure(Texture* p_Tex) { m_Tex = p_Tex; }
 	inline Texture* getTexure() { return m_Tex; }
 	inline void setTexRatio(double p_TexRatio) { m_TexRatio = p_TexRatio; m_TexRatioDao = 1.0 / p_TexRatio; }

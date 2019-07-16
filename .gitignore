@@ -112,3 +112,4 @@ RayTracing/RayTracing/x64/Debug/WhittedRender.obj
 RayTracing/.vs/RayTracing/v16/ipch/AutoPCH/885c2b6be2a17ec8/WHITTEDRENDER.ipch
 *.ipch
 *.obj
+*.dll

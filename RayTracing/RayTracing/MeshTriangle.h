@@ -77,19 +77,19 @@ public:
 		return intersect;
 	}
 
-	void getSurfaceProperties(const Vector &P, const Vector &I, const uint32_t &index, const Vector2D &uv, Vector &N, Vector2D &st) const
-	{
-		const Vector &v0 = vertices[vertexIndex[index * 3]];
-		const Vector &v1 = vertices[vertexIndex[index * 3 + 1]];
-		const Vector &v2 = vertices[vertexIndex[index * 3 + 2]];
-		Vector e0 = (v1 - v0).GetSafeNormal();
-		Vector e1 = (v2 - v1).GetSafeNormal();
-		N = ((e0^e1)).GetSafeNormal();;
-		const Vector2D &st0 = stCoordinates[vertexIndex[index * 3]];
-		const Vector2D &st1 = stCoordinates[vertexIndex[index * 3 + 1]];
-		const Vector2D &st2 = stCoordinates[vertexIndex[index * 3 + 2]];
-		st = st0 * (1 - uv.X - uv.Y) + st1 * uv.X + st2 * uv.Y;
-	}
+	//void getSurfaceProperties(const Vector &P, const Vector &I, const uint32_t &index, const Vector2D &uv, Vector &N, Vector2D &st) const
+	//{
+	//	const Vector &v0 = vertices[vertexIndex[index * 3]];
+	//	const Vector &v1 = vertices[vertexIndex[index * 3 + 1]];
+	//	const Vector &v2 = vertices[vertexIndex[index * 3 + 2]];
+	//	Vector e0 = (v1 - v0).GetSafeNormal();
+	//	Vector e1 = (v2 - v1).GetSafeNormal();
+	//	N = ((e0^e1)).GetSafeNormal();;
+	//	const Vector2D &st0 = stCoordinates[vertexIndex[index * 3]];
+	//	const Vector2D &st1 = stCoordinates[vertexIndex[index * 3 + 1]];
+	//	const Vector2D &st2 = stCoordinates[vertexIndex[index * 3 + 2]];
+	//	st = st0 * (1 - uv.X - uv.Y) + st1 * uv.X + st2 * uv.Y;
+	//}
 
 	Vector evalDiffuseColor(const Vector2D &st) const
 	{

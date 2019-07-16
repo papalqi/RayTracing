@@ -5,6 +5,7 @@
 class DistributedRender :public Render
 {
 public:
+	Vector Shader(const Ray p_ray, uint32_t depth, bool test = false) { return 0; };
 
 	DistributedRender(Options& options) :Render(options) {};
 	virtual	Vector Shader(
