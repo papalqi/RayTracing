@@ -5,19 +5,11 @@
 class DistributedRender :public Render
 {
 public:
-	Vector Shader(const Ray p_ray, uint32_t depth, bool test = false) { return 0; };
-
+	Vector Shader(const Ray p_ray, uint32_t depth, bool test = false);
+	Vector Shader(const Ray p_ray, uint32_t depth, float p_Sample, float p_SampleRange,bool test = false);
 	DistributedRender(Options& options) :Render(options) {};
-	virtual	Vector Shader(
-		const Vector& orig, const Vector& dir,
-		const std::vector<std::unique_ptr<Object>>& objects,
-		const std::vector<std::unique_ptr<Light>>& lights,
-		uint32_t depth,
-		bool test = false);
+	float GetShadowFact(Light* mlt, Vector position, Vector& p_Dir, float p_Sample, float p_SampleRange);
 };
 
-oocd::Vector DistributedRender::Shader(const Vector& orig, const Vector& dir, const std::vector<std::unique_ptr<Object>>& objects, const std::vector<std::unique_ptr<Light>>& lights, uint32_t depth, bool test /*= false*/)
-{
-	return 0;
-}
+
 

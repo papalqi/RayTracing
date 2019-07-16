@@ -125,5 +125,8 @@
     <ClCompile Include="Shpere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DistributedRender.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

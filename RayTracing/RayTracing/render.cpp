@@ -80,28 +80,9 @@ float Render::GetShadowFact(Light* mlt, Vector position, Vector& p_Dir)
 	//		if (prim == p_Light)
 	//			shade += 1.0;
 	//}
-	//else if (mlt->LightType == Rect)
-	//{
-	//	shade = 0.0;
-	//	Box* light = (Box*)p_Light;
-	//	Vector P = light->getPos();
-	//	Vector size = light->getSize();
-	//	p_Dir = P + 0.5 * size - p_pi;
-	//	NORMALIZE(p_Dir);
-	//	int n = (int)floor(sqrt(p_Sample + 0.5));
-	//	for (int i = 0; i < n; ++i)
-	//		for (int j = 0; j < n; ++j)
-	//		{
-	//			Vector d = Vector(size.x / n, 0.0, size.z / n);
-	//			Vector pos = P + Vector(d.x * (i + (double)rand() / RAND_MAX), 0.0, d.z * (j + (double)rand() / RAND_MAX));
-	//			Vector dir = pos - p_pi;
-	//			double dist = LENGTH(dir);
-	//			NORMALIZE(dir);
-	//			if (FindNearest(Ray(p_pi + dir * EPS, dir), dist, prim))
-	//				if (prim == p_Light)
-	//					ShadowFact += 1.0 / (n * n);
-	//		}
-	//}
+
+	//对面积光进行采样
+	
 	if (mlt->LightType == point)
 	{
 		p_Dir = mlt->position - position;
@@ -121,19 +102,30 @@ float Render::GetShadowFact(Light* mlt, Vector position, Vector& p_Dir)
 
 void Render::Rendering(  const std::vector<std::unique_ptr<Object>> &objects, const std::vector<std::unique_ptr<Light>> &lights)
 {
-
+	namedWindow("Lu", WINDOW_NORMAL);
 	//设置输出大小
 	Camera c = Camera();
+	Const_Max_Sample = SAMPLES;
+	
 	for (int y = 0; y < RTHeight; y++)
 	{
 		for (int x = 0; x < RTWidth; x++)
-		{
+		{	
+			
 			Color col(0, 0, 0);
-			Vector dir = c.getDir(x, y);
-			(dir).Normalize();
-			Ray r(c.getEye(), dir);
-		
-			col = Shader(r, MaxBound);
+			float bias = 1.f/ MSAA;
+
+			for(float SampleX = -1.f + bias; SampleX != 1.f; SampleX += bias)
+				for (float SampleY=-1.f + bias; SampleY !=1.f; SampleY += bias)
+			{
+				Vector dir = c.getDir(x+ SampleX, y+ SampleY);
+				(dir).Normalize();
+				Ray r(c.getEye(), dir);
+
+				col+= Shader(r, MaxBound)/ (MSAA* MSAA);
+			
+				
+			}
 			int red = (int)(col.X * 256);
 			int green = (int)(col.Y * 256);
 			int blue = (int)(col.Z * 256);
@@ -144,7 +136,7 @@ void Render::Rendering(  const std::vector<std::unique_ptr<Object>> &objects, co
 			//printf("rendering %dth row...\n", y + 1);
 		
 
-		
+			
 			//cv::waitKey(100000);
 			/*if (col.X > 1) col.X = 1;
 			if (col.Y > 1) col.X = 1;
@@ -152,13 +144,13 @@ void Render::Rendering(  const std::vector<std::unique_ptr<Object>> &objects, co
 			*(pix++) = col;*/
 
 		}
-	
+		cv::imshow("test", colorim);
+		cv::waitKey(1);
 
 	}
-
-	namedWindow("Lu", WINDOW_NORMAL);
-	cv::imshow("test", colorim);
 	waitKey(0);
+
+	
 
 
 }
@@ -243,7 +235,7 @@ void Render::InitScene()
 
 */
 	lights.push_back(std::unique_ptr<Light>(new Light(Vector(0,1,0), 1)));
-	lights[0]->LightType = point;
+	lights[0]->LightType = LightClass::Rect;
 	//lights.push_back(std::unique_ptr<Light>(new Light(Vector(0, -1, 0), 1)));
 	//lights[1]->LightType = point;
 
