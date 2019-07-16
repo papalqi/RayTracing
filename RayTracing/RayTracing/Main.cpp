@@ -19,7 +19,8 @@ int main(int argc, char* argv[])
 	Render * FuckingRender=nullptr;
 	if (argc != 2)
 	{
-		FuckingRender=new RayCastingRender(options);
+		FuckingRender = new WhittedRender(options);
+		//FuckingRender=new RayCastingRender(options);
 	}
 	else if (strcmp(argv[1], "Whitted") == 0)
 	{

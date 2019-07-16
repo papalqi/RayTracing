@@ -1,5 +1,5 @@
 #include "WhittedRender.h"
-
+#include "RayTracingDifine.h"
 
 
 // Vector WhittedRender::Shader(const Vector& orig, const Vector& dir, const std::vector<std::unique_ptr<Object>>& objects,
@@ -98,7 +98,7 @@ oocd::Vector WhittedRender::Shader(const Ray p_ray, uint32_t depth, bool test /*
 {
 	if (depth > options->maxDepth)
 	{
-		return options->backgroundColor;
+		return Vector::ZeroVector;
 	}
 
 	Vector hitColor = options->backgroundColor;
@@ -106,12 +106,12 @@ oocd::Vector WhittedRender::Shader(const Ray p_ray, uint32_t depth, bool test /*
 	Vector2D uv;
 	uint32_t index = 0;
 	Object* hitObject = nullptr;
-
+	Vector hitPoint;
 
 	if (FindNearest(p_ray, tnear, &hitObject))
 	{
 		hitColor = 0;
-		Vector hitPoint = p_ray.origin() + p_ray.direction() * tnear;//hitPoint为光线与最近物体交汇的地方
+		hitPoint = p_ray.origin() + p_ray.direction() * tnear;//hitPoint为光线与最近物体交汇的地方
 
 		Color LightColor;
 		for (int l = 0; l < lights.size(); ++l)
@@ -149,6 +149,77 @@ oocd::Vector WhittedRender::Shader(const Ray p_ray, uint32_t depth, bool test /*
 
 		}
 
+		float refl = hitObject->getMaterial()->getReflection();
+		if (refl > 0.0)//镜面反射
+		{
+			float drefl = hitObject->getMaterial()->getDiffRefl();
+			Vector N = hitObject->getNormal(hitPoint);
+			Vector R = p_ray.direction() - 2.0 * (p_ray.direction() | N) * N;
+			R.Normalize();
+
+			if (depth < WhittedMaxBound)//光滑镜面反射
+			{
+
+				double dist;
+
+				Color rcol = Shader(Ray(hitPoint + options->bias * R, R), depth + 1);
+
+				hitColor += refl * rcol * hitObject->getColor(hitPoint);
+			}
+		}
+		//计算折射
+		double refr = hitObject->getMaterial()->getRefraction();
+		auto normal = hitObject->getNormal(hitPoint);
+		if (refr > 0.0 && depth < WhittedMaxBound)
+		{
+
+			Vector reflectionDirection = (RTMath::reflect(p_ray.direction(), normal)).GetSafeNormal();
+			Vector refractionDirection = (RTMath::refract(p_ray.direction(), normal,
+				hitObject->m_Material.getRefraction()).GetSafeNormal());
+			Vector reflectionRayOrig = ((reflectionDirection | normal) < 0) ?
+				hitPoint - normal * options->bias :
+				hitPoint + normal * options->bias;
+			Vector refractionRayOrig = ((refractionDirection | normal) < 0) ?
+				hitPoint - normal * options->bias :
+				hitPoint + normal * options->bias;
+			Vector reflectionColor = Shader(Ray(reflectionRayOrig, reflectionDirection), depth + 1, 1);
+			Vector refractionColor = Shader(Ray(refractionRayOrig, refractionDirection), depth + 1, 1);
+
+			RTMath::fresnel(p_ray.direction(), normal, hitObject->m_Material.m_Refr, hitObject->m_Material.m_Spec);
+			hitColor = reflectionColor * hitObject->m_Material.m_Refr + refractionColor * (1 - hitObject->m_Material.m_Refr);
+
+	}
+	
+	
+
+
+		/*	Color rcol(0, 0, 0);
+			double dist;
+			Vector N;
+			N = -hitObject->getNormal(hitPoint);*/
+		/*	if (result < 0)
+			{
+				N = -1.0 * N;
+			}*/
+		//double tmp_Refr_rate = hitObject->getMaterial()->getRefr_Rate();
+		//if (result == INPRIM) tmp_Refr_rate = 1.0;
+		//double n = tmp_Refr_rate / p_Refr_Rate;//介质相对于空气的相对折射率
+		//Vector V = p_ray.direction();
+		//double cosi = -(V| N);
+		//double sinr2 = (1.0 - DOT(V, N) * DOT(V, N)) / (n * n);
+		//if (0.0 < sinr2 && sinr2 < 1.0)
+		//{
+		//	double cosr2 = 1.0 - sinr2;
+		//	double sinr = sqrt(sinr2);
+		//	double cosr = sqrt(cosr2);
+		//	vector3 T = (V * (1 / n)) + (cosi / n - sqrt(cosr2)) * N;
+
+		//	Shader(Ray(hitPoint + T * 0.1, T), rcol, depth + 1, tmp_Refr_rate, dist, p_Sample, p_SampleRange);
+
+		//	Color absorbance = hitObject->getColor(pi) * 0.15 * -dist;
+		//	Color transparency = Color(exp(absorbance.r), exp(absorbance.g), exp(absorbance.b));
+		//	hitColor += rcol * transparency;
+		//}
 	}
 
 

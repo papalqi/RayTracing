@@ -5,3 +5,4 @@
 #define RTWidth 800
 #define RTHeight 800
 #define MaxBound 2
+#define WhittedMaxBound 5
