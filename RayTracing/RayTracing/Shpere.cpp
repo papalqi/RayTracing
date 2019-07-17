@@ -46,14 +46,14 @@ bool Sphere::intersect(Ray o_ray, float& dist)
 	double b = -(v| o_ray.direction());
 	double det = (b * b) - (v|v) + radius2;
 	bool retval = false;
-	if (det > 0.0001f)
+	if (det > THRESH_QUAT_NORMALIZED)
 	{
 		det = sqrt(det);
 		double i1 = b - det;
 		double i2 = b + det;
-		if (i2 > 0.0001f)
+		if (i2 > THRESH_QUAT_NORMALIZED)
 		{
-			if (i1 < 0.0001f)
+			if (i1 < THRESH_QUAT_NORMALIZED)
 			{
 				if (i2 < dist)
 				{

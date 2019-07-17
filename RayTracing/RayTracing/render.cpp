@@ -1,5 +1,6 @@
 #include "render.h"
 #include "RayTracingDifine.h"
+#include "ShpereLighting.h"
 #include <opencv2\opencv.hpp>
 using namespace  cv;
 Mat colorim(RTHeight, RTWidth, CV_8UC3);
@@ -62,27 +63,10 @@ bool Render::FindNearest(const Ray p_ray, float& tNear, Object** hitObject)
 }
 
 
-float Render::GetShadowFact(Light* mlt, Vector position, Vector& p_Dir)
+float Render::GetShadowFact(BaseLighting* mlt, Vector position, Vector& p_Dir)
 {
 	float ShadowFact = 0.0;
-	//Light* prim = 0;
-	//if (mlt->LightType== Shpere)
-	//{
-	//	Sphere* light = (Sphere*)p_Light;
-	//	Vector O = light->getCentre();
-	//	p_Dir = O - p_pi;
-	//	NORMALIZE(p_Dir);
-	//	double R = light->getRadius();
-	//	Vector dir = O - p_pi;
-	//	double dist = LENGTH(dir);
-	//	NORMALIZE(dir);
-	//	if (FindNearest(Ray(p_pi + dir * EPS, dir), dist, prim))
-	//		if (prim == p_Light)
-	//			shade += 1.0;
-	//}
-
-	//对面积光进行采样
-	
+	//只接受点光源
 	if (mlt->LightType == point)
 	{
 		p_Dir = mlt->position - position;
@@ -94,13 +78,11 @@ float Render::GetShadowFact(Light* mlt, Vector position, Vector& p_Dir)
 		bool inShadow = FindNearest(Ray(position, p_Dir), tNearShadow, &shadowHitObject);
 		ShadowFact += inShadow;
 		//计算
-		
 	}
 	return ShadowFact;
-
 }
 
-void Render::Rendering(  const std::vector<std::unique_ptr<Object>> &objects, const std::vector<std::unique_ptr<Light>> &lights)
+void Render::Rendering()
 {
 	namedWindow("Lu", WINDOW_NORMAL);
 	//设置输出大小
@@ -115,14 +97,14 @@ void Render::Rendering(  const std::vector<std::unique_ptr<Object>> &objects, co
 			Color col(0, 0, 0);
 			float bias = 1.f/ MSAA;
 
-			for(float SampleX = -1.f + bias; SampleX != 1.f; SampleX += bias)
-				for (float SampleY=-1.f + bias; SampleY !=1.f; SampleY += bias)
+			for(int i=0;i!=MSAA;i++)
+				for (int j = 0; j != MSAA; j++)
 			{
-				Vector dir = c.getDir(x+ SampleX, y+ SampleY);
+				Vector dir = c.getDir(x+ i* bias, y+ j*bias);
 				(dir).Normalize();
 				Ray r(c.getEye(), dir);
 
-				col+= Shader(r, MaxBound)/ (MSAA* MSAA);
+				col+= Shader(r, MaxBound)/ (MSAA*MSAA);
 			
 				
 			}
@@ -133,32 +115,18 @@ void Render::Rendering(  const std::vector<std::unique_ptr<Object>> &objects, co
 			if (green > 255) green = 255;
 			if (blue > 255) blue = 255;
 			colorim.at<Vec3b>(RTHeight - y - 1, x) = Vec3b(blue, green, red);
-			//printf("rendering %dth row...\n", y + 1);
-		
-
-			
-			//cv::waitKey(100000);
-			/*if (col.X > 1) col.X = 1;
-			if (col.Y > 1) col.X = 1;
-			if (col.Z> 1) col.X = 1;
-			*(pix++) = col;*/
-
 		}
 		cv::imshow("test", colorim);
 		cv::waitKey(1);
 
 	}
 	waitKey(0);
-
-	
-
-
 }
 
 
 
 //这里主要计算的是是否有
-Color Render::GetDiffuseColor(material m_material, Light* m_light, Vector normal, Vector position,Object * obj)
+Color Render::GetDiffuseColor(material m_material, BaseLighting* m_light, Vector normal, Vector position,Object * obj)
 {
 	;
 	Color DiffuseColor(0,0,0);
@@ -177,7 +145,7 @@ Color Render::GetDiffuseColor(material m_material, Light* m_light, Vector normal
 }
 
 
-Color Render::GeSpecularColor(material m_material, Light* m_light, Vector normal, Vector position,Object* obj, Vector Dir)
+Color Render::GeSpecularColor(material m_material, BaseLighting* m_light, Vector normal, Vector position,Object* obj, Vector Dir)
 {
 	Color SpecularColor(0, 0, 0);
 
@@ -215,34 +183,10 @@ void Render::OutputImage(string paths, string name, Vector * framebuffer)
 
 void Render::InitScene()
 {
-
-	/*Sphere* sph1 = new Sphere(Vector(-1, 0, -12), 2);
-	sph1->materialType = DIFFUSE_AND_GLOSSY;
-	sph1->diffuseColor = Vector(0.6, 0.7, 0.8);
-	Sphere* sph2 = new Sphere(Vector(0.5, -0.5, -8), 1.5);
-	sph2->ior = 1.5;
-	sph2->materialType = REFLECTION_AND_REFRACTION;
-
-	objects.push_back(std::unique_ptr<Sphere>(sph1));
-	objects.push_back(std::unique_ptr<Sphere>(sph2));
-	Vector verts[4] = { {-5,-3,-6}, {5,-3,-6}, {5,-3,-16}, {-5,-3,-16} };
-	uint32_t vertIndex[6] = { 0, 1, 3, 1, 2, 3 };
-	Vector2D st[4] = { {0, 0}, {1, 0}, {1, 1}, {0, 1} };
-	MeshTriangle* mesh = new MeshTriangle(verts, vertIndex, 2, st);
-	mesh->materialType = DIFFUSE_AND_GLOSSY;
-
-	objects.push_back(std::unique_ptr<MeshTriangle>(mesh));
-
-*/
-	lights.push_back(std::unique_ptr<Light>(new Light(Vector(0,1,0), 1)));
-	lights[0]->LightType = LightClass::Rect;
-	//lights.push_back(std::unique_ptr<Light>(new Light(Vector(0, -1, 0), 1)));
-	//lights[1]->LightType = point;
-
 	objects.resize(9);
 
 	// ground plane
-	objects[0] = std::unique_ptr<Object>(new PlaneObj( Vector( 0, 1, 0 ), 4.4f ));
+	objects[0] = std::shared_ptr<Object>(new PlaneObj( Vector( 0, 1, 0 ), 4.4f ));
 	objects[0]->setName( "plane" );
 	objects[0]->getMaterial()->setReflection( 0.6f );
 	objects[0]->getMaterial()->setSpecular(0.8f);
@@ -250,7 +194,7 @@ void Render::InitScene()
 	objects[0]->getMaterial()->setDiffuse( 1.0f );
 	objects[0]->getMaterial()->setColor( Color( 0.3f, 0.3f, 0.3f ) );
 
-	objects[1] = std::unique_ptr<Object>(new PlaneObj( Vector( 0, 0, 0 ), 6.0f ));
+	objects[1] = std::shared_ptr<Object>(new PlaneObj( Vector( 0, 0, 0 ), 6.0f ));
 	objects[1]->setName( "backplane2" );
 	objects[1]->getMaterial()->setSpecular(0.8f);
 	objects[1]->getMaterial()->setReflection( 0.0f );
@@ -259,7 +203,7 @@ void Render::InitScene()
 	objects[1]->getMaterial()->setColor( Color( 0.0f, 0.2f, 0.0f ) );
 
 	// small sphere
-	objects[2] = std::unique_ptr<Object>(new Sphere( Vector( -5, -2.7f, 9 ), 1.5 ));
+	objects[2] = std::shared_ptr<Object>(new Sphere( Vector( -5, -2.7f, 9 ), 1.5 ));
 	objects[2]->setName( "small sphere" );
 	objects[2]->getMaterial()->setReflection( 0.8f );
 	objects[2]->getMaterial()->setRefraction( 0.0f );
@@ -269,7 +213,7 @@ void Render::InitScene()
 	objects[2]->getMaterial()->setDiffRefl( 0.1f );
 	
 	// third sphere
-	objects[3] = std::unique_ptr<Object>(new Sphere( Vector( 4, -3.2f, 7 ), 1 ));
+	objects[3] = std::shared_ptr<Object>(new Sphere( Vector( 4, -3.2f, 7 ), 1 ));
 	objects[3]->setName( "middle sphere" );
 	objects[3]->getMaterial()->setReflection( 0.1f );
 	objects[3]->getMaterial()->setRefraction( 0.9f );
@@ -281,7 +225,7 @@ void Render::InitScene()
 
 
 	// back plane
-	objects[4] = std::unique_ptr<Object>(new PlaneObj(Vector(0, 0, -1), 12.4f));
+	objects[4] = std::shared_ptr<Object>(new PlaneObj(Vector(0, 0, -1), 12.4f));
 	objects[4]->setName("backplane");
 	objects[4]->getMaterial()->setSpecular(0.4f);
 	objects[4]->getMaterial()->setReflection(0.0f);
@@ -291,7 +235,7 @@ void Render::InitScene()
 	//objects[4]->getMaterial()->setTexure(new Texture("textures/marble.tga"));
 	objects[4]->getMaterial()->setTexRatio(3.0);
 	
-	objects[5] = std::unique_ptr<Object>(new PlaneObj(Vector(0, -1, 0), 5.2f));
+	objects[5] = std::shared_ptr<Object>(new PlaneObj(Vector(0, -1, 0), 5.2f));
 	objects[5]->setName("ceiling");
 	objects[5]->getMaterial()->setSpecular(0.8f);
 	objects[5]->getMaterial()->setReflection(0.0f);
@@ -299,7 +243,7 @@ void Render::InitScene()
 	objects[5]->getMaterial()->setDiffuse(1.0f);
 	objects[5]->getMaterial()->setColor(Color(0.4f, 0.3f, 0.3f));
 
-	objects[6] = std::unique_ptr<Object>(new PlaneObj(Vector(1, 0, 0), 7.0f));
+	objects[6] = std::shared_ptr<Object>(new PlaneObj(Vector(1, 0, 0), 7.0f));
 	objects[6]->setName("right plane");
 	objects[6]->getMaterial()->setSpecular(0.0f);
 	objects[6]->getMaterial()->setReflection(0.0f);
@@ -308,8 +252,8 @@ void Render::InitScene()
 	objects[6]->getMaterial()->setColor(Color(0.2f, 0.0f, 0.0f));
 	//objects[6]->getMaterial()->setTexure(new Texture("textures/wood.tga"));
 	objects[6]->getMaterial()->setTexRatio(3.0);
-
-	objects[7] = std::unique_ptr<Object>(new PlaneObj( Vector( -1, 0, 0), 7.0f));
+	
+	objects[7] = std::shared_ptr<Object>(new PlaneObj( Vector( -1, 0, 0), 7.0f));
 	objects[7]->setName( "left plane" );
 	objects[7]->getMaterial()->setSpecular(0.0f);
 	objects[7]->getMaterial()->setReflection( 0.0f );
@@ -318,7 +262,7 @@ void Render::InitScene()
 	//object7[8]->getMaterial()->setColor( Color( 0.0f, 0.0f, 0.2f ) );
 	objects[7]->getMaterial()->setColor((1.0 / 256)*Color(241.0f, 158.0f, 194.0f ));
 
-	objects[8] = std::unique_ptr<Object>(new Sphere( Vector( -5.8, -3.0f, 5 ), 1.2 ));
+	objects[8] = std::shared_ptr<Object>(new Sphere( Vector( -5.8, -3.0f, 5 ), 1.2 ));
 	objects[8]->setName( "small sphere" );
 	objects[8]->getMaterial()->setReflection( 0.0f );
 	objects[8]->getMaterial()->setRefraction( 0.0f );
@@ -327,9 +271,34 @@ void Render::InitScene()
 	objects[8]->getMaterial()->setColor( Color( 0.7f, 0.7f, 1.0f ) );
 	//object8[9]->getMaterial()->setDiffRefl( 0.3f );
 	//objects[8]->getMaterial()->setTexure(new Texture( "textures/marble.tga" ));
+	AddLight(LightClass::Shpere, { 0, 1, 0 }, { 1,1,1 }, 1);
+	
 
+	
+}
 
+void Render::AddLight(LightClass Ltype, Vector p, Color cor, float size)
+{
+	if (Ltype == LightClass::point)
+	{
+		auto tem = std::shared_ptr<BaseLighting>(new BaseLighting(p, cor));
+		objects.push_back(tem);
+		
+		lights.push_back(tem);
+	}
+	else if (Ltype == LightClass::Rect)
+	{
+		auto tem = std::shared_ptr<BaseLighting>(new BaseLighting(p, cor));
 
+		objects.push_back(std::shared_ptr<BaseLighting>(new BaseLighting(p, cor)));
+		lights.push_back(tem);
+	}
+	else if(Ltype== LightClass::Shpere)
+	{
+		auto tem = std::shared_ptr<BaseLighting>(new BaseLighting(p, cor));
 
+		objects.push_back(std::shared_ptr<BaseLighting>(new ShpereLighting(p, size, cor)));
+		lights.push_back(tem);
+	}
 
 }

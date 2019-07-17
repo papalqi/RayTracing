@@ -148,13 +148,16 @@
     <ClInclude Include="RayTracingDifine.h" />
     <ClInclude Include="render.h" />
     <ClInclude Include="Shpere.h" />
+    <ClInclude Include="ShpereLighting.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="WhittedRender.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DistributedRender.cpp" />
+    <ClCompile Include="Light.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="material.cpp" />
+    <ClCompile Include="MeshTriangle.cpp" />
     <ClCompile Include="MetropolisRender.cpp" />
     <ClCompile Include="ObjectList.cpp" />
     <ClCompile Include="PathTracingRender.cpp" />
@@ -162,6 +165,7 @@
     <ClCompile Include="RayCasting.cpp" />
     <ClCompile Include="render.cpp" />
     <ClCompile Include="Shpere.cpp" />
+    <ClCompile Include="ShpereLighting.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="WhittedRender.cpp" />
   </ItemGroup>

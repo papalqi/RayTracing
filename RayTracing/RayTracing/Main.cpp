@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 		return 0;
 	
 	FuckingRender->InitScene();
-	FuckingRender->Rendering(FuckingRender->objects, FuckingRender->lights);
+	FuckingRender->Rendering();
 
 	return 0;
 }

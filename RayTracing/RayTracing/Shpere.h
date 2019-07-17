@@ -8,7 +8,8 @@
 class Sphere : public Object 
 {
 public:
-	Sphere(const Vector &c, const float &r) : center(c), radius(r), radius2(r * r) {}
+	
+	Sphere(const Vector& c, const float& r) : center(c), radius(r), radius2(r* r) { bLight = false; }
 	bool intersect(const Vector &orig, const Vector &dir, float &tnear, uint32_t &index, Vector2D &uv) const;	
 	bool intersect(Ray o_ray, float &dist) ;
 

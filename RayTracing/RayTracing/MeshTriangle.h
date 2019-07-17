@@ -33,76 +33,69 @@ bool rayTriangleIntersect(
 
 
 
-class MeshTriangle : public Object
+class Triangle : public Object
 {
 public:
-	MeshTriangle(
-		const Vector *verts,
-		const uint32_t *vertsIndex,
-		const uint32_t &numTris,
-		const Vector2D *st)
+	Triangle(Vector A, Vector B, Vector C)
 	{
-		uint32_t maxIndex = 0;
-		for (uint32_t i = 0; i < numTris * 3; ++i)
-			if (vertsIndex[i] > maxIndex) maxIndex = vertsIndex[i];
-		maxIndex += 1;
-		vertices = std::unique_ptr<Vector[]>(new Vector[maxIndex]);
-		memcpy(vertices.get(), verts, sizeof(Vector) * maxIndex);
-		vertexIndex = std::unique_ptr<uint32_t[]>(new uint32_t[numTris * 3]);
-		memcpy(vertexIndex.get(), vertsIndex, sizeof(uint32_t) * numTris * 3);
-		numTriangles = numTris;
-		stCoordinates = std::unique_ptr<Vector2D[]>(new Vector2D[maxIndex]);
-		memcpy(stCoordinates.get(), st, sizeof(Vector2D) * maxIndex);
+		vertex[0] = A; vertex[1] = B; vertex[2] = C;
+		
+		N = -(B - A)^(C - B);
+		N.Normalize();
+		bLight = false;
 	}
-
-	bool intersect(const Vector &orig, const Vector &dir, float &tnear, uint32_t &index, Vector2D &uv) const
-	{
-		bool intersect = false;
-		for (uint32_t k = 0; k < numTriangles; ++k) 
-		{
-			const Vector & v0 = vertices[vertexIndex[k * 3]];
-			const Vector & v1 = vertices[vertexIndex[k * 3 + 1]];
-			const Vector & v2 = vertices[vertexIndex[k * 3 + 2]];
-			float t, u, v;
-			if (rayTriangleIntersect(v0, v1, v2, orig, dir, t, u, v) && t < tnear) 
-			{
-				tnear = t;
-				uv.X = u;
-				uv.Y = v;
-				index = k;
-				intersect |= true;
-			}
-		}
-
-		return intersect;
+	double GetMinCoord(int coord) {
+		double x0 = vertex[0][coord];
+		double x1 = vertex[1][coord];
+		double x2 = vertex[2][coord];
+		if (x0 < x1)
+			return (x0 < x2) ? x0 : x2;
+		return (x1 < x2) ? x1 : x2;
 	}
-
-	//void getSurfaceProperties(const Vector &P, const Vector &I, const uint32_t &index, const Vector2D &uv, Vector &N, Vector2D &st) const
-	//{
-	//	const Vector &v0 = vertices[vertexIndex[index * 3]];
-	//	const Vector &v1 = vertices[vertexIndex[index * 3 + 1]];
-	//	const Vector &v2 = vertices[vertexIndex[index * 3 + 2]];
-	//	Vector e0 = (v1 - v0).GetSafeNormal();
-	//	Vector e1 = (v2 - v1).GetSafeNormal();
-	//	N = ((e0^e1)).GetSafeNormal();;
-	//	const Vector2D &st0 = stCoordinates[vertexIndex[index * 3]];
-	//	const Vector2D &st1 = stCoordinates[vertexIndex[index * 3 + 1]];
-	//	const Vector2D &st2 = stCoordinates[vertexIndex[index * 3 + 2]];
-	//	st = st0 * (1 - uv.X - uv.Y) + st1 * uv.X + st2 * uv.Y;
-	//}
-
-	Vector evalDiffuseColor(const Vector2D &st) const
-	{
-		float scale = 5.f;
-		float pattern = (fmodf(st.X * scale, 1.f) > 0.5f) ^ (fmodf(st.Y * scale, 1.f) > 0.5f);
-
-		return RTMath::mix(Red, Yellow, pattern);
+	double GetMaxCoord(int coord) {
+		double x0 = vertex[0][coord];
+		double x1 = vertex[1][coord];
+		double x2 = vertex[2][coord];
+		if (x0 > x1)
+			return (x0 > x2) ? x0 : x2;
+		return (x1 > x2) ? x1 : x2;
 	}
-	//顶点数据
-	std::unique_ptr<Vector[]> vertices;
-	//三角形个数
-	uint32_t numTriangles;
-	//顶点索引
-	std::unique_ptr<uint32_t[]> vertexIndex;
-	std::unique_ptr<Vector2D[]> stCoordinates;
+	int getType() { return TRIANGLE; }
+	bool Intersect(Ray& p_Ray, double& p_Dist);
+	//bool H_IntersectBox(BoundingBox&);
+	inline Vector getNormal(Vector& p_Pos) { return N; }
+	inline Vector getNormal() { return N; }
+	//Color getColor(Vector& p_Pos);
+	//BoundingBox getBoundingBox();
+protected:
+	Vector vertex[3];
+	Vector N;
 };
+
+class ObjTriangle : public Triangle
+{
+public:
+	ObjTriangle(Vector A, Vector B, Vector C) :Triangle(A, B, C) {}
+	int vertexIndex[3];
+	int id;
+	Object* obj;
+	Vector getNormal(Vector& p_Pos);
+	inline Vector getNormal() { return N; }
+};
+//class Mesh
+//{
+//public:
+//	Mesh() {}
+//	Vector m_move;
+//	double m_alpha;
+//	vector<ObjTriangle*> TriangleVec;
+//	vector<vector<int> > TriangleInfo;
+//
+//	inline void setInfo(Vector p_move, double p_alpha)
+//	{
+//		m_move = p_move;
+//		m_alpha = p_alpha;
+//	}
+//	void readin(std::string, Object**, int&, std::vector<TriangleTree*>&);
+//	void setMaterial(material*);
+//};

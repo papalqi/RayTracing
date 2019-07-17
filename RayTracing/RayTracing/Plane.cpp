@@ -10,6 +10,8 @@ PlaneObj::PlaneObj(Vector p_Normal, double p_D) : m_Plane(p_Normal, p_D )
 	x_Dir.Normalize();
 	y_Dir.Normalize();
 	O_H = -m_Plane.N | m_Plane.D;
+	bLight = false;
+
 }
 
 Color PlaneObj::getColor(Vector& p_Pos)

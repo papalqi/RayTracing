@@ -1,5 +1,5 @@
 #include "DistributedRender.h"
-
+#include "ShpereLighting.h"
 #include "RayTracingDifine.h"
 
 oocd::Vector DistributedRender::Shader(const Ray p_ray, uint32_t depth, bool test /*= false*/)
@@ -23,15 +23,20 @@ oocd::Vector DistributedRender::Shader(const Ray p_ray, uint32_t depth, float p_
 
 	if (FindNearest(p_ray, tnear, &hitObject))
 	{
+		if (hitObject->IsLight())
+		{
+			return ((BaseLighting*)hitObject)->intensity;
+		}
 		hitColor = 0;
 		hitPoint = p_ray.origin() + p_ray.direction() * tnear;//hitPoint为光线与最近物体交汇的地方
 
+		
 		Color LightColor;
 		for (int l = 0; l < lights.size(); ++l)
 		{
-			Light* p = lights[l].get();
+			BaseLighting* p = lights[l].get();
 			{
-				Light* light = p;
+				BaseLighting* light = p;
 				float shadow = 1.0;
 				Vector L;
 				shadow = GetShadowFact(light, hitPoint, L, p_Sample, p_SampleRange);
@@ -61,7 +66,7 @@ oocd::Vector DistributedRender::Shader(const Ray p_ray, uint32_t depth, float p_
 			}
 
 		}
-
+		//如果有反射的话计算反射
 		float refl = hitObject->getMaterial()->getReflection();
 		if (refl > 0.0)//反射
 		{
@@ -93,7 +98,7 @@ oocd::Vector DistributedRender::Shader(const Ray p_ray, uint32_t depth, float p_
 			}
 		
 		}
-		//计算折射
+		//如果有折射的话计算折射
 		double refr = hitObject->getMaterial()->getRefraction();
 		auto normal = hitObject->getNormal(hitPoint);
 		if (refr > 0.0 && depth < WhittedMaxBound)
@@ -124,10 +129,27 @@ oocd::Vector DistributedRender::Shader(const Ray p_ray, uint32_t depth, float p_
 }
 
 
-float DistributedRender::GetShadowFact(Light* mlt, Vector position, Vector& p_Dir, float p_Sample, float p_SampleRange)
+float DistributedRender::GetShadowFact(BaseLighting* mlt, Vector position, Vector& p_Dir, float p_Sample, float p_SampleRange)
 {
 	float ShadowFact = 0.0;
 
+
+	if (mlt->getType() == Shpere)
+	{
+		ShpereLighting* light = (ShpereLighting*)mlt;
+		Vector O = light->getCentre();
+		p_Dir = O - position;
+		(p_Dir).Normalize();
+		float R = light->getRadius();
+		Vector dir = O - position;
+		float dist = (dir).Size();
+		(dir).Normalize();
+		Object* prim;
+		//计算到达
+		if (FindNearest(Ray(position + dir  , dir), dist, &prim))
+			if (prim == mlt)
+				ShadowFact += 1.0;
+	}
 	if (mlt->LightType == LightClass::Rect)
 	{
 

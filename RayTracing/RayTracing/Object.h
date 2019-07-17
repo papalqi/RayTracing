@@ -23,7 +23,8 @@ public:
 		SPHERE = 1,
 		PLANE = 2,
 		BOX = 3,
-		TRIANGLE = 4
+		TRIANGLE = 4,
+		POINT=5
 	};
 	Object() :
 		materialType(DIFFUSE_AND_GLOSSY),
@@ -41,11 +42,11 @@ public:
 	virtual Vector getNormal(Vector& p_Pos, Vector& p_RayO) { return getNormal(p_Pos); }
 
 	virtual Color getColor(Vector& p_Pos) { return m_Material.getColor(); }
-
+	virtual bool IsLight() { return bLight; };
 public:
 	inline string getName() { return Name; }
 	void setName(string other) {Name = other;};
-	inline bool IsLight() { return m_Light; }
+	virtual bool IsLighting() { return m_Light; }
 	virtual void SetLighting(bool p_Light) { m_Light = p_Light; }
 public:
 	bool m_Light;//是否接受光照
@@ -54,6 +55,7 @@ public:
 	MaterialType materialType;
 	float ior;
 	float Kd, Ks;
+	bool bLight;//是否是光源
 	Vector diffuseColor;
 	float specularExponent;
 };

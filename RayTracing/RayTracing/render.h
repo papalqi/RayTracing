@@ -59,29 +59,25 @@ public:
 		float& tNear, uint32_t& index, Vector2D& uv, Object** hitObject);
 
 	virtual bool FindNearest(const Ray p_ray, float& tNear, Object** hitObject);
-	float GetShadowFact(Light* mlt, Vector position, Vector& p_Dir);
+	//只针对Whitted 和RayCasting ，因为只有点光源
+	float GetShadowFact(BaseLighting* mlt, Vector position, Vector& p_Dir);
 	//所有的渲染入口
-	virtual void Rendering(const std::vector<std::unique_ptr<Object>>& objects,
-		const std::vector<std::unique_ptr<Light>>& lights);
+	virtual void Rendering();
 
-	//virtual	Vector Shader(
-	//	const Vector& orig, const Vector& dir,
-	//	const std::vector<std::unique_ptr<Object>>& objects,
-	//	const std::vector<std::unique_ptr<Light>>& lights,
-	//	uint32_t depth,
-	//	bool test = false) = 0;
 
-	Color GetDiffuseColor(material m_material, Light* m_light, Vector normal, Vector position, Object* obj);
-	Color GeSpecularColor(material m_material, Light* m_light, Vector normal, Vector position, Object* obj, Vector Dir);
+
+	Color GetDiffuseColor(material m_material, BaseLighting* m_light, Vector normal, Vector position, Object* obj);
+	Color GeSpecularColor(material m_material, BaseLighting* m_light, Vector normal, Vector position, Object* obj, Vector Dir);
 	virtual	Vector Shader(const Ray p_ray, uint32_t depth, bool test = false) = 0;
 	//输出图片
 	void OutputImage(string paths, string name, Vector*);
 	//初始化场景
 	void InitScene();
+	void AddLight(LightClass ,Vector p,Color cor,float size);
 
 public:
-	std::vector<std::unique_ptr<Object>> objects;
-	std::vector<std::unique_ptr<Light>> lights;
+	std::vector<std::shared_ptr<Object>> objects;
+	std::vector<std::shared_ptr<BaseLighting>> lights;
 protected:
 	float Const_Max_Sample;
 	Options* options;

@@ -23,9 +23,9 @@ oocd::Vector WhittedRender::Shader(const Ray p_ray, uint32_t depth, bool test /*
 		Color LightColor;
 		for (int l = 0; l < lights.size(); ++l)
 		{
-			Light* p = lights[l].get();
+			BaseLighting* p = lights[l].get();
 			{
-				Light* light = p;
+				BaseLighting* light = p;
 				float shadow = 1.0;
 				Vector L;
 				shadow = GetShadowFact(light, hitPoint, L);
@@ -67,7 +67,7 @@ oocd::Vector WhittedRender::Shader(const Ray p_ray, uint32_t depth, bool test /*
 			if (depth < WhittedMaxBound)//光滑镜面反射
 			{
 
-				double dist;
+				float dist;
 
 				Color rcol = Shader(Ray(hitPoint + options->bias * R, R), depth + 1);
 
@@ -75,7 +75,7 @@ oocd::Vector WhittedRender::Shader(const Ray p_ray, uint32_t depth, bool test /*
 			}
 		}
 		//计算折射
-		double refr = hitObject->getMaterial()->getRefraction();
+		float refr = hitObject->getMaterial()->getRefraction();
 		auto normal = hitObject->getNormal(hitPoint);
 		if (refr > 0.0 && depth < WhittedMaxBound)
 		{
