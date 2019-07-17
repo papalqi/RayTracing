@@ -100,7 +100,7 @@ oocd::Vector DistributedRender::Shader(const Ray p_ray, uint32_t depth, float p_
 		}
 		//如果有折射的话计算折射
 		double refr = hitObject->getMaterial()->getRefraction();
-		auto normal = hitObject->getNormal(hitPoint);
+		auto normal = -hitObject->getNormal(hitPoint);
 		if (refr > 0.0 && depth < WhittedMaxBound)
 		{
 			float tmp_Refr_rate = hitObject->getMaterial()->getRefr_Rate();

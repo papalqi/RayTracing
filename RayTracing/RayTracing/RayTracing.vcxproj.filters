@@ -96,6 +96,9 @@
     <ClInclude Include="ShpereLighting.h">
       <Filter>Header Files\Light</Filter>
     </ClInclude>
+    <ClInclude Include="RectLighting.h">
+      <Filter>Header Files\Light</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Plane.cpp">

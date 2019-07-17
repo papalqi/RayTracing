@@ -165,21 +165,7 @@ Color Render::GeSpecularColor(material m_material, BaseLighting* m_light, Vector
 	return SpecularColor;
 }
 
-void Render::OutputImage(string paths, string name, Vector * framebuffer)
-{
-	std::ofstream ofs;
-	ofs.open(paths+ name);
-	ofs << "P6\n" << options->width << " " << options->height << "\n255\n";
-	for (uint32_t i = 0; i < options->height * options->width; ++i)
-	{
-		char r = (char)(255 * RTMath::clamp(0, 1, framebuffer[i].X));
-		char g = (char)(255 * RTMath::clamp(0, 1, framebuffer[i].Y));
-		char b = (char)(255 * RTMath::clamp(0, 1, framebuffer[i].Z));
-		ofs << g << b << r;
-	}
 
-	ofs.close();
-}
 
 void Render::InitScene()
 {

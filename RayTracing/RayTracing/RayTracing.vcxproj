@@ -146,6 +146,7 @@
     <ClInclude Include="Ray.h" />
     <ClInclude Include="RayCasting.h" />
     <ClInclude Include="RayTracingDifine.h" />
+    <ClInclude Include="RectLighting.h" />
     <ClInclude Include="render.h" />
     <ClInclude Include="Shpere.h" />
     <ClInclude Include="ShpereLighting.h" />

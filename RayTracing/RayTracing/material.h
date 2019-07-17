@@ -43,6 +43,9 @@ public:
 	Texture* m_Tex=nullptr;
 	float m_TexRatio = 0;//一块纹理的放大倍数
 	float m_TexRatioDao = 0;//一块纹理的放大倍数的倒数
+	Color emission;
+	enum Refl_t { DIFF, SPEC, REFR };
+	Refl_t BRDFType;
 };
 
 
