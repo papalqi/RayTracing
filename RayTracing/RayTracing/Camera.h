@@ -8,7 +8,7 @@ struct Ray;
 class Camera
 {
 public:
-	Camera() :m_Eye(0, 0, -5), m_Target(0, 0, 0), m_Dist(5.0), m_Width(8.0), m_Height(6.0), m_Ratio(0.01) {}
+	Camera():m_Eye(0,0,-5),m_Target(0,0,0),m_Dist(5.0),m_Width(8.0),m_Height(6.0),m_Ratio(0.01){}
 	Camera(Vector p_Eye, Vector p_Target, float p_Dist, float p_Width, float p_Height, float p_Ratio) :
 		m_Eye(p_Eye), m_Target(p_Target), m_Dist(p_Dist), m_Width(p_Width), m_Height(p_Width), m_Ratio(p_Ratio) {}
 	inline Vector getEye() { return m_Eye; }
@@ -56,3 +56,26 @@ private:
 	float m_R;//光圈的半径
 	float m_V;//眼睛到焦平面的距离
 };
+
+class FCamera
+{
+public:
+	FCamera();
+	Ray getRay(double x, double y);
+	void lookAt(double ex, double ey, double ez, double lx, double ly, double lz, double upx, double upy, double upz);
+	void perspective(double fov, double aspect, double near, double far);
+	void calcViewPort(double fov, double width, double height);
+	void rotate(double angle, const Vector& axis);
+
+	double width, height;//视口宽高
+	double nearPlane, farPlane;
+private:
+	Vector origin;
+	Vector direction;
+
+	double fov;//垂直方向的 filed of view
+	double rotateX, rotateY;
+	Vector front, up, right;
+	Vector view_x, view_y, view_z;
+};
+

@@ -31,8 +31,11 @@ public:
 	inline void setTexRatio(float p_TexRatio) { m_TexRatio = p_TexRatio; m_TexRatioDao = 1.0 / p_TexRatio; }
 	inline float getTexRatio() { return m_TexRatio; }
 	inline float getTexRatioDao() { return m_TexRatioDao; }
-	//virtual bool scatter(const Ray& r_in, const hit_record& rec, Vector& attenuation, Ray& scattered) const ;
+	inline float GetAttenuation() { return  albedo; }
+	inline float GetFuzz() { return fuzz; }
 	public:
+	float albedo = 0.5;
+	float fuzz=0.2;
 	Color m_Color=0;//材质颜色
 	float m_Refl = 0;//反射系数
 	float m_DiffRefl = 0;//漫镜面反射系数
@@ -46,6 +49,18 @@ public:
 	Color emission;
 	enum Refl_t { DIFF, SPEC, REFR };
 	Refl_t BRDFType;
+
+	//可以使用
+	bool b_UseFresnel=true;
+	bool b_Refractive = false;
+
+	float shiness;//光泽度Ns
+	float refractiveIndex;//折射系数Ni
+
+
+	Vector ka;
+	Vector kd;
+	Vector ks;
 };
 
 

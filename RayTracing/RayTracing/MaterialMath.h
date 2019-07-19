@@ -65,7 +65,8 @@ public:
 		if (sint >= 1) {
 			kr = 1;
 		}
-		else {
+		else 
+		{
 			float cost = sqrtf(std::max(0.f, 1 - sint * sint));
 			cosi = fabsf(cosi);
 			float Rs = ((etat * cosi) - (etai * cost)) / ((etat * cosi) + (etai * cost));
@@ -83,7 +84,31 @@ public:
 		} while (p.Size() >= 1.0f);
 		return p;
 	}
+	//Vector prefilterEnvMap(Vector r, float roughness) {
+	//	Vector n = r;
+	//	Vector v = r;
+	//	Vector color = Vector(0.0);
+	//	float totalWeight = 0.0;
+	//	float envMapDim = float(textureSize(samplerEnv, 0));
+	//	for (uint i = 0u; i < consts.numSamples; i++) {
+	//		vec2 Xi = hammersley2d(i, consts.numSamples);
+	//		Vector h = importanceSample_GGX(Xi, roughness, n);
+	//		Vector l = 2.0 * dot(v, h) * h - v;
+	//		float NdotL = clamp(dot(n, l), 0.0, 1.0);
+	//		if (NdotL > 0.0) {
+	//			float NdotH = clamp(dot(n, h), 0.0, 1.0);
+	//			float VdotH = clamp(dot(v, h), 0.0, 1.0);
 
+	//			float pdf = D_GGX(NdotH, roughness) * NdotH / (4.0 * VdotH) + 0.0001;
+	//			float omegaS = 1.0 / (float(consts.numSamples) * pdf);
+	//			float omegaP = 4.0 * PI / (6.0 * envMapDim * envMapDim);
+	//			float mipLevel = roughness == 0.0 ? 0.0 : max(0.5 * log2(omegaS / omegaP) + 1.0, 0.0);
+	//			color += textureLod(samplerEnv, l, mipLevel).rgb * NdotL;
+	//			totalWeight += NdotL;
+	//		}
+	//	}
+	//	return (color / totalWeight);
+	//}
 
 
 protected:

@@ -99,6 +99,9 @@
     <ClInclude Include="RectLighting.h">
       <Filter>Header Files\Light</Filter>
     </ClInclude>
+    <ClInclude Include="Sample.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Plane.cpp">
@@ -144,6 +147,9 @@
       <Filter>Header Files\Light</Filter>
     </ClCompile>
     <ClCompile Include="Light.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

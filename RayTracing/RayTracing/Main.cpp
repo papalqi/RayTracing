@@ -19,9 +19,10 @@ int main(int argc, char* argv[])
 	Render * FuckingRender=nullptr;
 	if (argc != 2)
 	{
-		FuckingRender = new DistributedRender(options);
-
-
+		//FuckingRender = new DistributedRender(options);
+		FuckingRender = new PathTracingRender(options);
+		//FuckingRender = new PathTracingRender(options);
+		//FuckingRender = new DistributedRender(options);
 		//FuckingRender=new RayCastingRender(options);
 	}
 	else if (strcmp(argv[1], "Whitted") == 0)

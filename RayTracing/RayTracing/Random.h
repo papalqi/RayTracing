@@ -41,6 +41,7 @@ static void _dorand48(unsigned short xseed[3])
 	xseed[1] = temp[1];
 	xseed[2] = (unsigned short)accu;
 }
+
 static double erand48(unsigned short xseed[3])
 {
 	_dorand48(xseed);

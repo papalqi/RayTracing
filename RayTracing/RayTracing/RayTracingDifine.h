@@ -6,7 +6,10 @@
 #define RTHeight 800
 #define MaxBound 2
 #define WhittedMaxBound 3
+#define PSTSAMPLE       5
+#define SAMPLES			2//直接光采样
+#define PathmaxRecursiveDepth  5
+#define MSAA 1
+#define lightSamples  6
 
-#define SAMPLES			2
-
-#define MSAA 2
+#define  pxSampleNum 2
